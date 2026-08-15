@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">Kisaan Dost</string>
+    <string name="welcome">Welcome to Kisaan Dost</string>
+    <string name="enter_name">Enter Your Name</string>
+    <string name="select_language">Select Preferred Language</string>
+    <string name="get_started">Get Started</string>
+    <string name="new_chat">New Chat</string>
+    <string name="type_message">Type a message or query...</string>
+    <string name="today_advisory">Today\'s Farm Advisory</string>
+    <string name="mandi_prices">Mandi Prices</string>
+    <string name="schemes_awareness">Schemes &amp; Awareness</string>
+    <string name="fake_fertilizer_alert">Alert: Fake Fertilizer Prevention</string>
+    <string name="pm_kisan_scheme">PM-Kisan Samman Nidhi</string>
+    <string name="pm_kisan_desc">Provides financial assistance of Rs. 6,000 per year to landholding farmer families across the country.</string>
+    <string name="pm_fasal_bima">PM Fasal Bima Yojana</string>
+    <string name="pm_fasal_bima_desc">Comprehensive crop insurance coverage against natural risks from pre-sowing to post-harvest.</string>
+    <string name="soil_health_card">Soil Health Card Scheme</string>
+    <string name="soil_health_card_desc">Provides information on nutrient status of soil along with recommendation on appropriate dosage of nutrients.</string>
+    <string name="fertilizer_alert_desc">Beware of counterfeit fertilizers! Always check QR code &amp; buy from government authorized dealers with GST bill.</string>
+</resources>

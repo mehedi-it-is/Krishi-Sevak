@@ -1,0 +1,8 @@
+## Location of the Android SDK
+sdk.dir=/path/to/your/Android/Sdk
+
+## API Keys
+SARVAM_API_KEY="your_sarvam_api_key_here"
+OPENWEATHER_API_KEY="your_openweather_api_key_here"
+MANDI_API_KEY="your_data_gov_in_api_key_here"
+KINDWISE_API_KEY="your_kindwise_api_key_here"

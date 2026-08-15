@@ -1,0 +1,32 @@
+*.iml
+.gradle
+/local.properties
+/.idea
+.idea/
+.DS_Store
+/build
+build/
+*/build
+app/build/
+.captures
+.externalNativeBuild
+.cxx
+*.apk
+*.aab
+output-metadata.json
+
+# Cache & indexing files
+.artifacts/
+.kotlin/
+.vscode/
+build-analyzer-history-data/
+cache-state.xml
+external_build_system/
+indexingStamp/
+project-model-cache/
+patch_strings.py
+
+# Keystores & sensitive files
+*.jks
+*.keystore
+# google-services.json
