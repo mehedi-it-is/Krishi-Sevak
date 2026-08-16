@@ -29,10 +29,25 @@ class ChatRepository(
 
     suspend fun transcribeAudioWithSarvam(audioFile: File, languageCode: String? = null): String = withContext(Dispatchers.IO) {
         try {
-            val reqFile = audioFile.asRequestBody("audio/*".toMediaTypeOrNull())
+            val reqFile = audioFile.asRequestBody("audio/mp4".toMediaTypeOrNull())
             val body = MultipartBody.Part.createFormData("file", audioFile.name, reqFile)
-            val modelReq = "saarika:v2".toRequestBody("text/plain".toMediaTypeOrNull())
-            val langReq = languageCode?.let { it.toRequestBody("text/plain".toMediaTypeOrNull()) }
+            val modelReq = "saarika:v2.5".toRequestBody("text/plain".toMediaTypeOrNull())
+
+            val sarvamLangCode = when (languageCode?.lowercase()?.trim()) {
+                "hi" -> "hi-IN"
+                "bn" -> "bn-IN"
+                "kn" -> "kn-IN"
+                "ml" -> "ml-IN"
+                "mr" -> "mr-IN"
+                "or" -> "od-IN"
+                "pa" -> "pa-IN"
+                "ta" -> "ta-IN"
+                "te" -> "te-IN"
+                "gu" -> "gu-IN"
+                "en" -> "en-IN"
+                else -> "unknown"
+            }
+            val langReq = sarvamLangCode.toRequestBody("text/plain".toMediaTypeOrNull())
 
             val response = sarvamApi.speechToText(
                 apiKey = sarvamApiKey,
@@ -42,7 +57,7 @@ class ChatRepository(
             )
             response.transcript ?: ""
         } catch (e: Exception) {
-            android.util.Log.e("ChatRepository", "Sarvam STT error: ${e.message}")
+            android.util.Log.e("ChatRepository", "Sarvam STT error: ${e.message}", e)
             throw e
         }
     }
@@ -132,9 +147,14 @@ class ChatRepository(
         // Step 4: Call Sarvam AI LLM
         val aiResponseText = try {
             val response = sarvamApi.generateAdvisory(sarvamApiKey, sarvamRequest)
-            response.choices?.firstOrNull()?.message?.content
-                ?: getFallbackAdvisory(targetLanguage, diseaseDiagnosis)
+            val content = response.choices?.firstOrNull()?.message?.content
+            if (!content.isNullOrBlank()) {
+                content
+            } else {
+                getFallbackAdvisory(targetLanguage, diseaseDiagnosis)
+            }
         } catch (e: Exception) {
+            android.util.Log.e("ChatRepository", "Sarvam generateAdvisory error: ${e.message}", e)
             getFallbackAdvisory(targetLanguage, diseaseDiagnosis)
         }
 

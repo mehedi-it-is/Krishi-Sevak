@@ -13,11 +13,14 @@ import com.krishisevak.app.utils.TtsManager
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
+import com.krishisevak.app.BuildConfig
+
 class CropDoctorViewModel(
     private val plantScanDao: PlantScanDao,
     private val dataStoreManager: DataStoreManager,
     val ttsManager: TtsManager,
-    private val kindwiseApi: KindwiseApi
+    private val kindwiseApi: KindwiseApi,
+    private val kindwiseApiKey: String = BuildConfig.KINDWISE_API_KEY
 ) : ViewModel() {
 
     val userLanguageCode: StateFlow<String> = dataStoreManager.userLanguageCodeFlow
@@ -41,7 +44,7 @@ class CropDoctorViewModel(
             var diseaseName = "Unknown"
             try {
                 val request = KindwiseHealthRequest(images = listOf("data:image/jpeg;base64,$base64Image"))
-                val response = kindwiseApi.analyzeCropHealth("DEMO_KINDWISE_KEY", request)
+                val response = kindwiseApi.analyzeCropHealth(kindwiseApiKey, request)
                 val topSuggestion = response.result?.disease?.suggestions?.firstOrNull()
                 if (topSuggestion != null) {
                     diseaseName = topSuggestion.name ?: "Pest / Fungal Infection"

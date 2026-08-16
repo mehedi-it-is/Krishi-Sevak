@@ -42,6 +42,73 @@ fun CropDoctorScreen(
     val isSpeaking = currentlySpeakingId == "crop_doctor"
     val context = LocalContext.current
 
+    var showAttachmentDialog by remember { mutableStateOf(false) }
+    var tempCameraUri by remember { mutableStateOf<android.net.Uri?>(null) }
+
+    val takePictureLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success && tempCameraUri != null) {
+            val base64 = ImageHelper.compressAndEncodeToBase64(context, tempCameraUri!!)
+            if (base64 != null) {
+                viewModel.analyzeImage(base64)
+            }
+        }
+    }
+
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicturePreview()
+    ) { bitmap ->
+        if (bitmap != null) {
+            val base64 = ImageHelper.compressBitmapToBase64(bitmap)
+            if (base64 != null) {
+                viewModel.analyzeImage(base64)
+            }
+        }
+    }
+
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            val uri = ImageHelper.createTempPictureUri(context)
+            if (uri != null) {
+                tempCameraUri = uri
+                try {
+                    takePictureLauncher.launch(uri)
+                } catch (e: Exception) {
+                    cameraLauncher.launch(null)
+                }
+            } else {
+                cameraLauncher.launch(null)
+            }
+        } else {
+            android.widget.Toast.makeText(context, "Camera permission is required to diagnose crop leaves", android.widget.Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    val triggerCamera = {
+        val hasCameraPerm = androidx.core.content.ContextCompat.checkSelfPermission(
+            context,
+            android.Manifest.permission.CAMERA
+        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        if (hasCameraPerm) {
+            val uri = ImageHelper.createTempPictureUri(context)
+            if (uri != null) {
+                tempCameraUri = uri
+                try {
+                    takePictureLauncher.launch(uri)
+                } catch (e: Exception) {
+                    cameraLauncher.launch(null)
+                }
+            } else {
+                cameraLauncher.launch(null)
+            }
+        } else {
+            cameraPermissionLauncher.launch(android.Manifest.permission.CAMERA)
+        }
+    }
+
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
@@ -51,6 +118,50 @@ fun CropDoctorScreen(
                 viewModel.analyzeImage(base64)
             }
         }
+    }
+
+    if (showAttachmentDialog) {
+        AlertDialog(
+            onDismissRequest = { showAttachmentDialog = false },
+            title = { Text("Crop Diagnosis Photo", fontWeight = FontWeight.Bold) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text("Take or upload a clear photo of the infected crop leaf / stem:")
+                    Button(
+                        onClick = {
+                            showAttachmentDialog = false
+                            triggerCamera()
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                    ) {
+                        Icon(Icons.Default.PhotoCamera, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("📷 Take Photo with Camera", fontWeight = FontWeight.Bold)
+                    }
+
+                    OutlinedButton(
+                        onClick = {
+                            showAttachmentDialog = false
+                            imagePickerLauncher.launch("image/*")
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Icon(Icons.Default.PhotoLibrary, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("🖼️ Choose from Gallery", fontWeight = FontWeight.Bold)
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { showAttachmentDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 
     Scaffold(
@@ -94,7 +205,7 @@ fun CropDoctorScreen(
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = { imagePickerLauncher.launch("image/*") },
+                onClick = { showAttachmentDialog = true },
                 icon = { Icon(Icons.Default.CameraAlt, contentDescription = "Take Photo") },
                 text = { Text("Diagnose Crop") },
                 containerColor = MaterialTheme.colorScheme.primary,

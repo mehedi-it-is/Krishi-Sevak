@@ -37,7 +37,10 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.krishisevak.app.ui.components.AudioWaveformVisualizer
+import android.Manifest
+import android.content.pm.PackageManager
+import android.widget.Toast
+import androidx.core.content.ContextCompat
 import java.io.ByteArrayOutputStream
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -79,7 +82,19 @@ fun ChatScreen(
         }
     }
 
-    // Camera launcher
+    var tempCameraUri by remember { mutableStateOf<Uri?>(null) }
+
+    // Full-resolution camera launcher using FileProvider
+    val takePictureLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success: Boolean ->
+        if (success && tempCameraUri != null) {
+            attachedImageUri = tempCameraUri
+            attachedImageBase64 = com.krishisevak.app.utils.ImageHelper.compressAndEncodeToBase64(context, tempCameraUri!!)
+        }
+    }
+
+    // Fallback camera preview launcher
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicturePreview()
     ) { bitmap: Bitmap? ->
@@ -88,6 +103,46 @@ fun ChatScreen(
             val uri = com.krishisevak.app.utils.ImageHelper.bitmapToCacheUri(context, bitmap)
             attachedImageBase64 = base64
             attachedImageUri = uri
+        }
+    }
+
+    // Camera runtime permission launcher
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            val uri = com.krishisevak.app.utils.ImageHelper.createTempPictureUri(context)
+            if (uri != null) {
+                tempCameraUri = uri
+                try {
+                    takePictureLauncher.launch(uri)
+                } catch (e: Exception) {
+                    cameraLauncher.launch(null)
+                }
+            } else {
+                cameraLauncher.launch(null)
+            }
+        } else {
+            Toast.makeText(context, "Camera permission is required to take crop photos", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    val triggerCamera = {
+        val hasCameraPerm = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
+        if (hasCameraPerm) {
+            val uri = com.krishisevak.app.utils.ImageHelper.createTempPictureUri(context)
+            if (uri != null) {
+                tempCameraUri = uri
+                try {
+                    takePictureLauncher.launch(uri)
+                } catch (e: Exception) {
+                    cameraLauncher.launch(null)
+                }
+            } else {
+                cameraLauncher.launch(null)
+            }
+        } else {
+            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
         }
     }
 
@@ -417,7 +472,7 @@ fun ChatScreen(
                             Button(
                                 onClick = {
                                     showAttachmentDialog = false
-                                    cameraLauncher.launch(null)
+                                    triggerCamera()
                                 },
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(12.dp),

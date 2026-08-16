@@ -53,6 +53,20 @@ object ImageHelper {
         }
     }
 
+    fun createTempPictureUri(context: Context): Uri? {
+        return try {
+            val file = java.io.File(context.cacheDir, "camera_capture_${System.currentTimeMillis()}.jpg")
+            androidx.core.content.FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.provider",
+                file
+            )
+        } catch (e: Exception) {
+            android.util.Log.e("ImageHelper", "Failed to create temp picture uri: ${e.message}", e)
+            null
+        }
+    }
+
     fun bitmapToCacheUri(context: Context, bitmap: Bitmap): Uri? {
         return try {
             val file = java.io.File(context.cacheDir, "crop_cam_${System.currentTimeMillis()}.jpg")
@@ -60,7 +74,15 @@ object ImageHelper {
             bitmap.compress(Bitmap.CompressFormat.JPEG, 90, fos)
             fos.flush()
             fos.close()
-            Uri.fromFile(file)
+            try {
+                androidx.core.content.FileProvider.getUriForFile(
+                    context,
+                    "${context.packageName}.provider",
+                    file
+                )
+            } catch (e: Exception) {
+                Uri.fromFile(file)
+            }
         } catch (e: Exception) {
             e.printStackTrace()
             null

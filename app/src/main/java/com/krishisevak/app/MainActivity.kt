@@ -73,26 +73,37 @@ class MainActivity : ComponentActivity() {
         val db = AppDatabase.getDatabase(applicationContext)
         plantScanDao = db.plantScanDao()
 
+        val okHttpClient = okhttp3.OkHttpClient.Builder()
+            .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+            .readTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
+            .writeTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
+            .build()
+
         val kindwiseRetrofit = Retrofit.Builder()
             .baseUrl("https://crop.kindwise.com/")
+            .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
         val kindwiseApi = kindwiseRetrofit.create(KindwiseApi::class.java)
 
         val sarvamRetrofit = Retrofit.Builder()
             .baseUrl("https://api.sarvam.ai/")
+            .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
         val sarvamApi = sarvamRetrofit.create(SarvamApi::class.java)
 
         repository = ChatRepository(
+            chatDao = db.chatDao(),
             kindwiseApi = kindwiseApi,
             sarvamApi = sarvamApi,
-            chatDao = db.chatDao()
+            kindwiseApiKey = BuildConfig.KINDWISE_API_KEY,
+            sarvamApiKey = BuildConfig.SARVAM_API_KEY
         )
 
         val mandiRetrofit = Retrofit.Builder()
             .baseUrl("https://api.data.gov.in/")
+            .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
         val mandiApi = mandiRetrofit.create(MandiApi::class.java)

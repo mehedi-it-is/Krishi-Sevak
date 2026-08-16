@@ -3,11 +3,13 @@ package com.krishisevak.app.ui.dashboard
 import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.speech.RecognizerIntent
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -123,12 +125,61 @@ fun DashboardScreen(
 
     val voiceRecorder = remember { com.krishisevak.app.utils.VoiceRecorderHelper(context) }
 
+    var tempCameraUri by remember { mutableStateOf<Uri?>(null) }
+
+    val takePictureLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success && tempCameraUri != null) {
+            selectedImageUri = tempCameraUri
+        }
+    }
+
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicturePreview()
     ) { bitmap ->
         if (bitmap != null) {
             val uri = com.krishisevak.app.utils.ImageHelper.bitmapToCacheUri(context, bitmap)
             selectedImageUri = uri
+        }
+    }
+
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            val uri = com.krishisevak.app.utils.ImageHelper.createTempPictureUri(context)
+            if (uri != null) {
+                tempCameraUri = uri
+                try {
+                    takePictureLauncher.launch(uri)
+                } catch (e: Exception) {
+                    cameraLauncher.launch(null)
+                }
+            } else {
+                cameraLauncher.launch(null)
+            }
+        } else {
+            Toast.makeText(context, "Camera permission is required to take photos", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    val triggerCamera = {
+        val hasCameraPerm = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
+        if (hasCameraPerm) {
+            val uri = com.krishisevak.app.utils.ImageHelper.createTempPictureUri(context)
+            if (uri != null) {
+                tempCameraUri = uri
+                try {
+                    takePictureLauncher.launch(uri)
+                } catch (e: Exception) {
+                    cameraLauncher.launch(null)
+                }
+            } else {
+                cameraLauncher.launch(null)
+            }
+        } else {
+            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
         }
     }
 
@@ -589,7 +640,7 @@ fun DashboardScreen(
                                             text = { Text("📷  Take Photo (Camera)") },
                                             onClick = {
                                                 showAttachMenu = false
-                                                cameraLauncher.launch(null)
+                                                triggerCamera()
                                             },
                                             leadingIcon = { Icon(Icons.Default.CameraAlt, contentDescription = null) }
                                         )

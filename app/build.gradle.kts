@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -9,6 +11,17 @@ kotlin {
     compilerOptions {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
     }
+}
+
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(localPropertiesFile.inputStream())
+}
+
+fun getLocalProperty(key: String, defaultValue: String = ""): String {
+    val prop = localProperties.getProperty(key) ?: defaultValue
+    return prop.trim().removeSurrounding("\"")
 }
 
 android {
@@ -26,6 +39,18 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        val sarvamApiKey = getLocalProperty("SARVAM_API_KEY", "")
+        val kindwiseApiKey = getLocalProperty("KINDWISE_API_KEY", "")
+        val geminiApiKey = getLocalProperty("GEMINI_API_KEY", "")
+        val openweatherApiKey = getLocalProperty("OPENWEATHER_API_KEY", "")
+        val mandiApiKey = getLocalProperty("MANDI_API_KEY", "")
+
+        buildConfigField("String", "SARVAM_API_KEY", "\"$sarvamApiKey\"")
+        buildConfigField("String", "KINDWISE_API_KEY", "\"$kindwiseApiKey\"")
+        buildConfigField("String", "GEMINI_API_KEY", "\"$geminiApiKey\"")
+        buildConfigField("String", "OPENWEATHER_API_KEY", "\"$openweatherApiKey\"")
+        buildConfigField("String", "MANDI_API_KEY", "\"$mandiApiKey\"")
     }
 
     buildTypes {
@@ -43,6 +68,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     packaging {
         resources {

@@ -15,7 +15,7 @@ data class SarvamChatMessage(
 )
 
 data class SarvamChatRequest(
-    @SerializedName("model") val model: String = "sarvam-2b",
+    @SerializedName("model") val model: String = "sarvam-105b",
     @SerializedName("messages") val messages: List<SarvamChatMessage>,
     @SerializedName("temperature") val temperature: Double = 0.7
 )
