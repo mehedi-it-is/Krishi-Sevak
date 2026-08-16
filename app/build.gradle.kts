@@ -12,11 +12,11 @@ kotlin {
 }
 
 android {
-    namespace = "com.kisaandost.app"
+    namespace = "com.krishisevak.app"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.kisaandost.app"
+        applicationId = "com.krishisevak.app"
         minSdk = 24
         targetSdk = 35
         versionCode = 1

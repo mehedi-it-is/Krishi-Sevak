@@ -1,6 +1,6 @@
-# KisaanDost (किसान दोस्त)
+# KrishiSevak (कृषि सेवक)
 
-KisaanDost is an AI-powered agricultural assistant designed to empower farmers in India with real-time data, localized information, and expert advice. Built with Android and Jetpack Compose, the app bridges the information gap for farmers by providing a simple, voice-first, and multi-lingual interface.
+KrishiSevak is an AI-powered agricultural assistant designed to empower farmers in India with real-time data, localized information, and expert advice. Built with Android and Jetpack Compose, the app bridges the information gap for farmers by providing a simple, voice-first, and multi-lingual interface.
 
 ## 🚀 Key Features
 
@@ -23,12 +23,12 @@ KisaanDost is an AI-powered agricultural assistant designed to empower farmers i
 
 ## 📦 Project Structure
 
-*   `app/src/main/java/com/kisaandost/app/ui/onboarding/`: Screens for Name, Location, and Language selection.
-*   `app/src/main/java/com/kisaandost/app/ui/dashboard/`: Main hub containing tabs for Mandi Prices, Government Schemes, Weather, and Alerts.
-*   `app/src/main/java/com/kisaandost/app/ui/chat/`: The conversational AI interface.
-*   `app/src/main/java/com/kisaandost/app/data/remote/`: API interfaces and data models (MandiApi, WeatherApi).
-*   `app/src/main/java/com/kisaandost/app/data/local/`: DataStore implementation for persisting user preferences.
-*   `app/src/main/java/com/kisaandost/app/utils/`: Helper classes for TTS (`TtsManager`), Location mapping (`LocationHelper`), and AI integration (`LocalSmartAiEngine`).
+*   `app/src/main/java/com/krishisevak/app/ui/onboarding/`: Screens for Name, Location, and Language selection.
+*   `app/src/main/java/com/krishisevak/app/ui/dashboard/`: Main hub containing tabs for Mandi Prices, Government Schemes, Weather, and Alerts.
+*   `app/src/main/java/com/krishisevak/app/ui/chat/`: The conversational AI interface.
+*   `app/src/main/java/com/krishisevak/app/data/remote/`: API interfaces and data models (MandiApi, WeatherApi).
+*   `app/src/main/java/com/krishisevak/app/data/local/`: DataStore implementation for persisting user preferences.
+*   `app/src/main/java/com/krishisevak/app/utils/`: Helper classes for TTS (`TtsManager`), Location mapping (`LocationHelper`), and AI integration (`LocalSmartAiEngine`).
 
 ## ⚙️ How to Build and Run
 

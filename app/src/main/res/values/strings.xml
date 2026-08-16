@@ -1,6 +1,6 @@
 <resources>
-    <string name="app_name">Kisaan Dost</string>
-    <string name="welcome">Welcome to Kisaan Dost</string>
+    <string name="app_name">Krishi Sevak</string>
+    <string name="welcome">Welcome to Krishi Sevak</string>
     <string name="enter_name">Enter Your Name</string>
     <string name="select_language">Select Preferred Language</string>
     <string name="get_started">Get Started</string>
