@@ -11,6 +11,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.compose.animation.*
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -18,8 +20,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.Chat
@@ -35,7 +39,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -262,97 +269,7 @@ fun DashboardScreen(
                         }
                     )
 
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-                    // Smart Agri Tools Section
-                    Text(
-                        text = AppStrings.get("smart_tools_title", userLanguageCode),
-                        style = MaterialTheme.typography.titleSmall,
-                        modifier = Modifier.padding(bottom = 6.dp),
-                        color = MaterialTheme.colorScheme.primary
-                    )
-
-                    NavigationDrawerItem(
-                        icon = { Text("📞", fontSize = 18.sp) },
-                        label = { Text("Kisan Call Center & KVKs") },
-                        selected = false,
-                        onClick = {
-                            coroutineScope.launch { drawerState.close() }
-                            onNavigateToKvk()
-                        }
-                    )
-
-                    NavigationDrawerItem(
-                        icon = { Text("⚖️", fontSize = 18.sp) },
-                        label = { Text("Fertilizer & Soil Advisory") },
-                        selected = false,
-                        onClick = {
-                            coroutineScope.launch { drawerState.close() }
-                            onNavigateToSoil()
-                        }
-                    )
-
-                    NavigationDrawerItem(
-                        icon = { Text("🩺", fontSize = 18.sp) },
-                        label = { Text(AppStrings.get("tool_doctor_title", userLanguageCode)) },
-                        selected = false,
-                        onClick = {
-                            coroutineScope.launch { drawerState.close() }
-                            onNavigateToCropDoctor()
-                        }
-                    )
-
-                    NavigationDrawerItem(
-                        icon = { Text("🌾", fontSize = 18.sp) },
-                        label = { Text(AppStrings.get("tool_crop_title", userLanguageCode)) },
-                        selected = false,
-                        onClick = {
-                            coroutineScope.launch { drawerState.close() }
-                            onNavigateToCropRecommend()
-                        }
-                    )
-
-                    NavigationDrawerItem(
-                        icon = { Text("📅", fontSize = 18.sp) },
-                        label = { Text(AppStrings.get("tool_almanac_title", userLanguageCode)) },
-                        selected = false,
-                        onClick = {
-                            coroutineScope.launch { drawerState.close() }
-                            onNavigateToAlmanac()
-                        }
-                    )
-
-                    NavigationDrawerItem(
-                        icon = { Text("📊", fontSize = 18.sp) },
-                        label = { Text(AppStrings.get("tool_insights_title", userLanguageCode)) },
-                        selected = false,
-                        onClick = {
-                            coroutineScope.launch { drawerState.close() }
-                            onNavigateToInsights()
-                        }
-                    )
-
-                    NavigationDrawerItem(
-                        icon = { Text("📖", fontSize = 18.sp) },
-                        label = { Text(AppStrings.get("tool_learn_title", userLanguageCode)) },
-                        selected = false,
-                        onClick = {
-                            coroutineScope.launch { drawerState.close() }
-                            onNavigateToLearn()
-                        }
-                    )
-
-                    NavigationDrawerItem(
-                        icon = { Text("🎓", fontSize = 18.sp) },
-                        label = { Text("App Tour & Guide / ऐप गाइड") },
-                        selected = false,
-                        onClick = {
-                            coroutineScope.launch { drawerState.close() }
-                            showAppTutorial = true
-                        }
-                    )
-
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
 
                     Text(
                         text = AppStrings.get("saved_chats", userLanguageCode),
@@ -365,12 +282,18 @@ fun DashboardScreen(
                         Text(
                             text = AppStrings.get("no_saved_chats", userLanguageCode),
                             style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(start = 12.dp, bottom = 4.dp),
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        Spacer(modifier = Modifier.weight(1f))
                     } else {
-                        LazyColumn(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.weight(1f)) {
-                            items(recentChats) { chat ->
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = 160.dp)
+                                .verticalScroll(rememberScrollState())
+                        ) {
+                            recentChats.forEach { chat ->
                                 NavigationDrawerItem(
                                     icon = { Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = null) },
                                     label = { Text(chat.title, maxLines = 1) },
@@ -382,6 +305,103 @@ fun DashboardScreen(
                                 )
                             }
                         }
+                    }
+
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+                    // Smart Agri Tools Section
+                    Text(
+                        text = AppStrings.get("smart_tools_title", userLanguageCode),
+                        style = MaterialTheme.typography.titleSmall,
+                        modifier = Modifier.padding(bottom = 6.dp),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(2.dp),
+                        modifier = Modifier
+                            .weight(1f)
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        NavigationDrawerItem(
+                            icon = { Text("📞", fontSize = 18.sp) },
+                            label = { Text("Kisan Call Center & KVKs") },
+                            selected = false,
+                            onClick = {
+                                coroutineScope.launch { drawerState.close() }
+                                onNavigateToKvk()
+                            }
+                        )
+
+                        NavigationDrawerItem(
+                            icon = { Text("⚖️", fontSize = 18.sp) },
+                            label = { Text("Fertilizer & Soil Advisory") },
+                            selected = false,
+                            onClick = {
+                                coroutineScope.launch { drawerState.close() }
+                                onNavigateToSoil()
+                            }
+                        )
+
+                        NavigationDrawerItem(
+                            icon = { Text("🩺", fontSize = 18.sp) },
+                            label = { Text(AppStrings.get("tool_doctor_title", userLanguageCode)) },
+                            selected = false,
+                            onClick = {
+                                coroutineScope.launch { drawerState.close() }
+                                onNavigateToCropDoctor()
+                            }
+                        )
+
+                        NavigationDrawerItem(
+                            icon = { Text("🌾", fontSize = 18.sp) },
+                            label = { Text(AppStrings.get("tool_crop_title", userLanguageCode)) },
+                            selected = false,
+                            onClick = {
+                                coroutineScope.launch { drawerState.close() }
+                                onNavigateToCropRecommend()
+                            }
+                        )
+
+                        NavigationDrawerItem(
+                            icon = { Text("📅", fontSize = 18.sp) },
+                            label = { Text(AppStrings.get("tool_almanac_title", userLanguageCode)) },
+                            selected = false,
+                            onClick = {
+                                coroutineScope.launch { drawerState.close() }
+                                onNavigateToAlmanac()
+                            }
+                        )
+
+                        NavigationDrawerItem(
+                            icon = { Text("📊", fontSize = 18.sp) },
+                            label = { Text(AppStrings.get("tool_insights_title", userLanguageCode)) },
+                            selected = false,
+                            onClick = {
+                                coroutineScope.launch { drawerState.close() }
+                                onNavigateToInsights()
+                            }
+                        )
+
+                        NavigationDrawerItem(
+                            icon = { Text("📖", fontSize = 18.sp) },
+                            label = { Text(AppStrings.get("tool_learn_title", userLanguageCode)) },
+                            selected = false,
+                            onClick = {
+                                coroutineScope.launch { drawerState.close() }
+                                onNavigateToLearn()
+                            }
+                        )
+
+                        NavigationDrawerItem(
+                            icon = { Text("🎓", fontSize = 18.sp) },
+                            label = { Text("App Tour & Guide / ऐप गाइड") },
+                            selected = false,
+                            onClick = {
+                                coroutineScope.launch { drawerState.close() }
+                                showAppTutorial = true
+                            }
+                        )
                     }
 
                     // Bottom Section
@@ -586,186 +606,81 @@ fun DashboardScreen(
                     }
                 }
             },
-            bottomBar = {
+            floatingActionButtonPosition = FabPosition.End,
+            floatingActionButton = {
                 Surface(
-                    color = MaterialTheme.colorScheme.background,
+                    onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        onNavigateToChat(null, null, null)
+                    },
+                    shape = RoundedCornerShape(28.dp),
+                    color = if (isDarkMode) Color(0xFF132A1C) else Color.White,
+                    border = BorderStroke(
+                        1.dp,
+                        if (isDarkMode) Color(0xFF25A25A).copy(alpha = 0.6f) else Color(0xFFE2E8F0)
+                    ),
+                    shadowElevation = 8.dp,
                     modifier = Modifier
-                        .fillMaxWidth()
                         .navigationBarsPadding()
-                        .padding(horizontal = 16.dp, vertical = 12.dp)
+                        .padding(bottom = 16.dp, end = 8.dp)
                 ) {
-                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        // Floating audio wave indicator if recording
-                        if (isVoiceRecording) {
-                            AudioWaveformVisualizer(isRecording = true, modifier = Modifier.align(Alignment.CenterHorizontally))
-                        }
-
+                    Row(
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        // AI Sparkle icon with vibrant gradient matching app aesthetic
                         Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(60.dp)
-                                .clip(RoundedCornerShape(30.dp))
-                                .background(MaterialTheme.colorScheme.surfaceVariant)
-                                .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(30.dp))
-                                .padding(horizontal = 8.dp),
-                            contentAlignment = Alignment.CenterStart
+                            modifier = Modifier.size(22.dp),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Row(
-                                modifier = Modifier.fillMaxSize(),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Box {
-                                    IconButton(
-                                        onClick = {
-                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                            showAttachMenu = !showAttachMenu
-                                        },
-                                        modifier = Modifier
-                                            .size(44.dp)
-                                            .background(Color(0xFF165231), CircleShape)
-                                    ) {
-                                        Icon(
-                                            imageVector = if (showAttachMenu) Icons.Default.Close else Icons.Default.Add,
-                                            contentDescription = "Attach Options",
-                                            tint = Color.White
-                                        )
-                                    }
-
-                                    // Attachment popup menu
-                                    DropdownMenu(
-                                        expanded = showAttachMenu,
-                                        onDismissRequest = { showAttachMenu = false }
-                                    ) {
-                                        DropdownMenuItem(
-                                            text = { Text("📷  Take Photo (Camera)") },
-                                            onClick = {
-                                                showAttachMenu = false
-                                                triggerCamera()
-                                            },
-                                            leadingIcon = { Icon(Icons.Default.CameraAlt, contentDescription = null) }
-                                        )
-                                        DropdownMenuItem(
-                                            text = { Text("🖼️  Choose from Gallery") },
-                                            onClick = {
-                                                showAttachMenu = false
-                                                imagePickerLauncher.launch("image/*")
-                                            },
-                                            leadingIcon = { Icon(Icons.Default.PhotoLibrary, contentDescription = null) }
-                                        )
-                                    }
-                                }
-
-                                TextField(
-                                    value = chatInputText,
-                                    onValueChange = { chatInputText = it },
-                                    placeholder = {
-                                        Text(
-                                            text = if (isVoiceRecording) "🎙️ Listening with Sarvam AI..." else AppStrings.get("ask_anything", userLanguageCode),
-                                            color = if (isVoiceRecording) Color(0xFFEF4444) else MaterialTheme.colorScheme.onSurfaceVariant,
-                                            fontSize = 15.sp
-                                        )
-                                    },
-                                    modifier = Modifier.weight(1f),
-                                    colors = TextFieldDefaults.colors(
-                                        focusedContainerColor = Color.Transparent,
-                                        unfocusedContainerColor = Color.Transparent,
-                                        disabledContainerColor = Color.Transparent,
-                                        focusedIndicatorColor = Color.Transparent,
-                                        unfocusedIndicatorColor = Color.Transparent,
-                                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface
-                                    ),
-                                    singleLine = true
+                            Canvas(modifier = Modifier.fillMaxSize()) {
+                                val brush = Brush.linearGradient(
+                                    colors = listOf(Color(0xFFE11D48), Color(0xFF9333EA), Color(0xFF3B82F6)),
+                                    start = Offset(0f, 0f),
+                                    end = Offset(size.width, size.height)
                                 )
-
-                                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                    // Sarvam Voice STT button
-                                    IconButton(
-                                        onClick = {
-                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                            if (isVoiceRecording) {
-                                                isVoiceRecording = false
-                                                val audioFile = voiceRecorder.stopRecording()
-                                                if (audioFile != null) {
-                                                    viewModel.transcribeVoice(audioFile) { transcript ->
-                                                        chatInputText = transcript
-                                                    }
-                                                }
-                                            } else {
-                                                val hasPermission = androidx.core.content.ContextCompat.checkSelfPermission(
-                                                    context, Manifest.permission.RECORD_AUDIO
-                                                ) == android.content.pm.PackageManager.PERMISSION_GRANTED
-                                                if (hasPermission) {
-                                                    val file = voiceRecorder.startRecording()
-                                                    if (file != null) {
-                                                        isVoiceRecording = true
-                                                    }
-                                                } else {
-                                                    recordAudioPermission.launch(Manifest.permission.RECORD_AUDIO)
-                                                }
-                                            }
-                                        },
-                                        modifier = Modifier
-                                            .size(44.dp)
-                                            .background(if (isVoiceRecording) Color(0xFFEF4444) else Color(0xFF165231), CircleShape)
-                                    ) {
-                                        Icon(
-                                            imageVector = if (isVoiceRecording) Icons.Default.Stop else Icons.Default.Mic,
-                                            contentDescription = "Voice Search",
-                                            tint = Color.White
-                                        )
-                                    }
-
-                                    IconButton(
-                                        onClick = {
-                                            if (chatInputText.isNotBlank() || selectedImageUri != null) {
-                                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                                val query = chatInputText
-                                                val imageUriStr = selectedImageUri?.toString()
-                                                chatInputText = ""
-                                                selectedImageUri = null
-                                                onNavigateToChat(null, query, imageUriStr)
-                                            }
-                                        },
-                                        modifier = Modifier
-                                            .size(44.dp)
-                                            .background(Color(0xFF165231), CircleShape)
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.AutoMirrored.Filled.Send,
-                                            contentDescription = "Send",
-                                            tint = Color.White
-                                        )
-                                    }
+                                // Main 4-point sparkle
+                                val cx = size.width * 0.40f
+                                val cy = size.height * 0.40f
+                                val r = size.width * 0.38f
+                                val starPath = Path().apply {
+                                    moveTo(cx, cy - r)
+                                    quadraticTo(cx, cy, cx + r, cy)
+                                    quadraticTo(cx, cy, cx, cy + r)
+                                    quadraticTo(cx, cy, cx - r, cy)
+                                    quadraticTo(cx, cy, cx, cy - r)
+                                    close()
                                 }
-                            }
-                            
-                            // Image Preview Area
-                            if (selectedImageUri != null) {
-                                Box(
-                                    modifier = Modifier
-                                        .padding(start = 60.dp, top = 8.dp)
-                                        .size(80.dp)
-                                        .clip(RoundedCornerShape(8.dp))
-                                ) {
-                                    AsyncImage(
-                                        model = selectedImageUri,
-                                        contentDescription = "Selected Image",
-                                        modifier = Modifier.fillMaxSize(),
-                                        contentScale = androidx.compose.ui.layout.ContentScale.Crop
-                                    )
-                                    IconButton(
-                                        onClick = { selectedImageUri = null },
-                                        modifier = Modifier
-                                            .align(Alignment.TopEnd)
-                                            .size(24.dp)
-                                            .background(Color.Black.copy(alpha = 0.5f), CircleShape)
-                                    ) {
-                                        Icon(Icons.Default.Close, contentDescription = "Remove Image", tint = Color.White, modifier = Modifier.size(16.dp))
-                                    }
+                                drawPath(starPath, brush = brush)
+
+                                // Secondary smaller sparkle
+                                val sBrush = Brush.linearGradient(
+                                    colors = listOf(Color(0xFF9333EA), Color(0xFF3B82F6))
+                                )
+                                val scx = size.width * 0.82f
+                                val scy = size.height * 0.82f
+                                val sr = size.width * 0.20f
+                                val smallStar = Path().apply {
+                                    moveTo(scx, scy - sr)
+                                    quadraticTo(scx, scy, scx + sr, scy)
+                                    quadraticTo(scx, scy, scx, scy + sr)
+                                    quadraticTo(scx, scy, scx - sr, scy)
+                                    quadraticTo(scx, scy, scx, scy - sr)
+                                    close()
                                 }
+                                drawPath(smallStar, brush = sBrush)
                             }
                         }
+
+                        Text(
+                            text = AppStrings.get("ask_anything", userLanguageCode),
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 15.sp,
+                                color = if (isDarkMode) Color.White else Color(0xFF1E293B)
+                            )
+                        )
                     }
                 }
             }
