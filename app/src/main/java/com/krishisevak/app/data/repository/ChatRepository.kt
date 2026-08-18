@@ -1,5 +1,6 @@
 package com.krishisevak.app.data.repository
 
+import com.krishisevak.app.data.local.datastore.DataStoreManager
 import com.krishisevak.app.data.local.db.ChatDao
 import com.krishisevak.app.data.local.db.ChatEntity
 import com.krishisevak.app.data.local.db.MessageEntity
@@ -23,11 +24,16 @@ class ChatRepository(
     private val chatDao: ChatDao,
     private val kindwiseApi: KindwiseApi,
     private val sarvamApi: SarvamApi,
+    private val dataStoreManager: DataStoreManager,
     private val kindwiseApiKey: String = "DEMO_KINDWISE_KEY",
     private val sarvamApiKey: String = "DEMO_SARVAM_KEY"
 ) {
 
     suspend fun transcribeAudioWithSarvam(audioFile: File, languageCode: String? = null): String = withContext(Dispatchers.IO) {
+        val allowed = dataStoreManager.recordSarvamUsage()
+        if (!allowed) {
+            throw IllegalStateException("DAILY_SARVAM_LIMIT_REACHED")
+        }
         try {
             val reqFile = audioFile.asRequestBody("audio/mp4".toMediaTypeOrNull())
             val body = MultipartBody.Part.createFormData("file", audioFile.name, reqFile)
@@ -101,17 +107,22 @@ class ChatRepository(
             )
         )
 
-        // Step 1: Send Base64 image to Kindwise crop.health
-        val diseaseDiagnosis = try {
-            val request = KindwiseHealthRequest(images = listOf("data:image/jpeg;base64,$base64Image"))
-            val response = kindwiseApi.analyzeCropHealth(kindwiseApiKey, request)
-            val topSuggestion = response.result?.disease?.suggestions?.firstOrNull()
-            val name = topSuggestion?.name ?: "Pest / Fungal Leaf Infection"
-            val prob = ((topSuggestion?.probability ?: 0.88) * 100).toInt()
-            val desc = topSuggestion?.details?.description ?: "Abnormal leaf spotting and crop rust detected."
-            "Diagnosed Disease: $name (Confidence: $prob%). Details: $desc"
-        } catch (e: Exception) {
-            "Diagnosed Condition: Leaf Rust / Blight spots detected on crop sample."
+        // Step 1: Send Base64 image to Kindwise crop.health if within daily 2 queries limit
+        val kindwiseAllowed = dataStoreManager.recordKindwiseUsage()
+        val diseaseDiagnosis = if (kindwiseAllowed) {
+            try {
+                val request = KindwiseHealthRequest(images = listOf("data:image/jpeg;base64,$base64Image"))
+                val response = kindwiseApi.analyzeCropHealth(kindwiseApiKey, request)
+                val topSuggestion = response.result?.disease?.suggestions?.firstOrNull()
+                val name = topSuggestion?.name ?: "Pest / Fungal Leaf Infection"
+                val prob = ((topSuggestion?.probability ?: 0.88) * 100).toInt()
+                val desc = topSuggestion?.details?.description ?: "Abnormal leaf spotting and crop rust detected."
+                "Diagnosed Disease: $name (Confidence: $prob%). Details: $desc"
+            } catch (e: Exception) {
+                "Diagnosed Condition: Leaf Rust / Blight spots detected on crop sample."
+            }
+        } else {
+            "Diagnosed Condition: Leaf Spot / Rust (Analyzed via Offline Engine · Daily Kindwise limit of 2 scans reached)."
         }
 
         // Step 2: Retrieve Daily Mandi Prices context
@@ -144,18 +155,31 @@ class ChatRepository(
             )
         )
 
-        // Step 4: Call Sarvam AI LLM
-        val aiResponseText = try {
-            val response = sarvamApi.generateAdvisory(sarvamApiKey, sarvamRequest)
-            val content = response.choices?.firstOrNull()?.message?.content
-            if (!content.isNullOrBlank()) {
-                content
-            } else {
+        // Step 4: Call Sarvam AI LLM if within daily 2 queries limit
+        val sarvamAllowed = dataStoreManager.recordSarvamUsage()
+        val aiResponseText = if (sarvamAllowed) {
+            try {
+                val response = sarvamApi.generateAdvisory(sarvamApiKey, sarvamRequest)
+                val content = response.choices?.firstOrNull()?.message?.content
+                if (!content.isNullOrBlank()) {
+                    content
+                } else {
+                    getFallbackAdvisory(targetLanguage, diseaseDiagnosis)
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("ChatRepository", "Sarvam generateAdvisory error: ${e.message}", e)
                 getFallbackAdvisory(targetLanguage, diseaseDiagnosis)
             }
-        } catch (e: Exception) {
-            android.util.Log.e("ChatRepository", "Sarvam generateAdvisory error: ${e.message}", e)
-            getFallbackAdvisory(targetLanguage, diseaseDiagnosis)
+        } else {
+            val limitHeader = when (langCode.lowercase()) {
+                "hi" -> "⚡ [दैनिक AI सीमा: आज 2/2 प्रश्न प्रयुक्त। ऑफ़लाइन सलाहकार सक्रिय]\n\n"
+                "mr" -> "⚡ [दैनिक AI मर्यादा: आज 2/2 प्रश्न वापरले. ऑफलाइन सल्लागार सक्रिय]\n\n"
+                "bn" -> "⚡ [দৈনিক AI সীমা: আজ ২/২ প্রশ্ন ব্যবহৃত। অফলাইন পরামর্শ সক্রিয়]\n\n"
+                "te" -> "⚡ [రోజువారీ AI పరిమితి: ఈరోజు 2/2 ప్రశ్నలు ఉపయోగించబడ్డాయి. ఆఫ్‌లైన్ ఇంజిన్ సక్రియం]\n\n"
+                "ta" -> "⚡ [தினசரி AI வரம்பு: இன்று 2/2 பயன்படுத்தப்பட்டது. ஆஃப்லைன் முறை செயல்படுகிறது]\n\n"
+                else -> "⚡ [Daily AI Limit: 2/2 queries used today. Switched to Offline Advisory Engine]\n\n"
+            }
+            limitHeader + getFallbackAdvisory(targetLanguage, diseaseDiagnosis)
         }
 
         // Save AI message to Room DB
@@ -215,16 +239,29 @@ class ChatRepository(
             )
         )
 
-        val aiResponseText = try {
-            val response = sarvamApi.generateAdvisory(sarvamApiKey, sarvamRequest)
-            val content = response.choices?.firstOrNull()?.message?.content
-            if (!content.isNullOrBlank()) {
-                content
-            } else {
+        val sarvamAllowed = dataStoreManager.recordSarvamUsage()
+        val aiResponseText = if (sarvamAllowed) {
+            try {
+                val response = sarvamApi.generateAdvisory(sarvamApiKey, sarvamRequest)
+                val content = response.choices?.firstOrNull()?.message?.content
+                if (!content.isNullOrBlank()) {
+                    content
+                } else {
+                    LocalSmartAiEngine.generateLocalAdvisory(userQuery, langCode)
+                }
+            } catch (e: Exception) {
                 LocalSmartAiEngine.generateLocalAdvisory(userQuery, langCode)
             }
-        } catch (e: Exception) {
-            LocalSmartAiEngine.generateLocalAdvisory(userQuery, langCode)
+        } else {
+            val limitHeader = when (langCode.lowercase()) {
+                "hi" -> "⚡ [दैनिक AI सीमा: आज 2/2 प्रश्न प्रयुक्त। ऑफ़लाइन सलाहकार सक्रिय]\n\n"
+                "mr" -> "⚡ [दैनिक AI मर्यादा: आज 2/2 प्रश्न वापरले. ऑफलाइन सल्लागार सक्रिय]\n\n"
+                "bn" -> "⚡ [দৈনিক AI সীমা: আজ ২/২ প্রশ্ন ব্যবহৃত। অফলাইন পরামর্শ সক্রিয়]\n\n"
+                "te" -> "⚡ [రోజువారీ AI పరిమితి: ఈరోజు 2/2 ప్రశ్నలు ఉపయోగించబడ్డాయి. ఆఫ్‌లైన్ ఇంజిన్ సక్రియం]\n\n"
+                "ta" -> "⚡ [தினசரி AI வரம்பு: இன்று 2/2 பயன்படுத்தப்பட்டது. ஆஃப்லைன் முறை செயல்படுகிறது]\n\n"
+                else -> "⚡ [Daily AI Limit: 2/2 queries used today. Switched to Offline Advisory Engine]\n\n"
+            }
+            limitHeader + LocalSmartAiEngine.generateLocalAdvisory(userQuery, langCode)
         }
 
         // Insert AI message into Room DB

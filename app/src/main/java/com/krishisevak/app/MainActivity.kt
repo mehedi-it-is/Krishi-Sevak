@@ -97,6 +97,7 @@ class MainActivity : ComponentActivity() {
             chatDao = db.chatDao(),
             kindwiseApi = kindwiseApi,
             sarvamApi = sarvamApi,
+            dataStoreManager = dataStoreManager,
             kindwiseApiKey = BuildConfig.KINDWISE_API_KEY,
             sarvamApiKey = BuildConfig.SARVAM_API_KEY
         )
@@ -109,7 +110,7 @@ class MainActivity : ComponentActivity() {
         val mandiApi = mandiRetrofit.create(MandiApi::class.java)
 
         setContent {
-            val isDarkMode by dataStoreManager.isDarkModeFlow.collectAsStateWithLifecycle(initialValue = true)
+            val isDarkMode by dataStoreManager.isDarkModeFlow.collectAsStateWithLifecycle(initialValue = false)
 
             KrishiSevakTheme(darkTheme = isDarkMode) {
                 Surface(

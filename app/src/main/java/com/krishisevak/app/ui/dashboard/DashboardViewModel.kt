@@ -44,10 +44,13 @@ class DashboardViewModel(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "Hindi")
 
     val isDarkMode: StateFlow<Boolean> = dataStoreManager.isDarkModeFlow
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     val recentChats: StateFlow<List<ChatEntity>> = repository.getAllChats()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    val sarvamQueriesUsed: StateFlow<Int> = dataStoreManager.sarvamQueriesUsedTodayFlow
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
     // Location State
     private val _userLocation = MutableStateFlow(
@@ -422,7 +425,11 @@ class DashboardViewModel(
         }
     }
 
-    fun transcribeVoice(audioFile: java.io.File, onTranscribed: (String) -> Unit) {
+    fun transcribeVoice(
+        audioFile: java.io.File,
+        onError: ((String) -> Unit)? = null,
+        onTranscribed: (String) -> Unit
+    ) {
         viewModelScope.launch {
             try {
                 val transcript = repository.transcribeAudioWithSarvam(audioFile, userLanguageCode.value)
@@ -431,10 +438,20 @@ class DashboardViewModel(
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Sarvam STT failed: ${e.message}")
+                if (e.message == "DAILY_SARVAM_LIMIT_REACHED" || e.cause?.message == "DAILY_SARVAM_LIMIT_REACHED") {
+                    val msg = AppStrings.get("daily_voice_limit_reached", userLanguageCode.value)
+                    onError?.invoke(msg)
+                } else {
+                    onError?.invoke(e.localizedMessage ?: "Voice transcription failed")
+                }
             } finally {
                 try { audioFile.delete() } catch (_: Exception) {}
             }
         }
+    }
+
+    fun transcribeVoice(audioFile: java.io.File, onTranscribed: (String) -> Unit) {
+        transcribeVoice(audioFile, onError = null, onTranscribed = onTranscribed)
     }
 
     fun updateUserName(name: String) {

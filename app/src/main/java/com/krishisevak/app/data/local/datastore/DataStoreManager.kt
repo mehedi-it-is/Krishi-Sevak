@@ -6,9 +6,11 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.util.UUID
 
@@ -17,6 +19,8 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(na
 class DataStoreManager(private val context: Context) {
 
     companion object {
+        const val DAILY_AI_QUERY_LIMIT = 2
+
         val USER_UUID = stringPreferencesKey("user_uuid")
         val USER_NAME = stringPreferencesKey("user_name")
         val USER_LANGUAGE_CODE = stringPreferencesKey("user_language_code")
@@ -31,6 +35,37 @@ class DataStoreManager(private val context: Context) {
         val LOCATION_LON = doublePreferencesKey("loc_lon")
         
         val LAST_SCHEMES_FETCH_TIME = androidx.datastore.preferences.core.longPreferencesKey("last_schemes_fetch_time")
+
+        // AI Daily Rate Limit preferences
+        val SARVAM_USAGE_DATE = stringPreferencesKey("sarvam_usage_date")
+        val SARVAM_USAGE_COUNT = intPreferencesKey("sarvam_usage_count")
+        val KINDWISE_USAGE_DATE = stringPreferencesKey("kindwise_usage_date")
+        val KINDWISE_USAGE_COUNT = intPreferencesKey("kindwise_usage_count")
+    }
+
+    private fun getTodayDateString(): String {
+        val sdf = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
+        return sdf.format(java.util.Date())
+    }
+
+    val sarvamQueriesUsedTodayFlow: Flow<Int> = context.dataStore.data.map { prefs ->
+        val today = getTodayDateString()
+        val date = prefs[SARVAM_USAGE_DATE] ?: ""
+        if (date == today) {
+            prefs[SARVAM_USAGE_COUNT] ?: 0
+        } else {
+            0
+        }
+    }
+
+    val kindwiseQueriesUsedTodayFlow: Flow<Int> = context.dataStore.data.map { prefs ->
+        val today = getTodayDateString()
+        val date = prefs[KINDWISE_USAGE_DATE] ?: ""
+        if (date == today) {
+            prefs[KINDWISE_USAGE_COUNT] ?: 0
+        } else {
+            0
+        }
     }
 
     val userUuidFlow: Flow<String> = context.dataStore.data.map { prefs ->
@@ -50,7 +85,7 @@ class DataStoreManager(private val context: Context) {
     }
 
     val isDarkModeFlow: Flow<Boolean> = context.dataStore.data.map { prefs ->
-        prefs[IS_DARK_MODE] ?: true
+        prefs[IS_DARK_MODE] ?: false
     }
 
     val locationCityFlow: Flow<String> = context.dataStore.data.map { prefs ->
@@ -82,7 +117,7 @@ class DataStoreManager(private val context: Context) {
             prefs[USER_LANGUAGE_CODE] = languageCode
             prefs[USER_LANGUAGE_NAME] = languageName
             if (prefs[IS_DARK_MODE] == null) {
-                prefs[IS_DARK_MODE] = true
+                prefs[IS_DARK_MODE] = false
             }
         }
     }
@@ -126,9 +161,70 @@ class DataStoreManager(private val context: Context) {
         }
     }
 
+    suspend fun canUseSarvam(): Boolean {
+        val today = getTodayDateString()
+        val prefs = context.dataStore.data.first()
+        val date = prefs[SARVAM_USAGE_DATE] ?: ""
+        val count = if (date == today) (prefs[SARVAM_USAGE_COUNT] ?: 0) else 0
+        return count < DAILY_AI_QUERY_LIMIT
+    }
+
+    /**
+     * Attempts to consume 1 query quota for Sarvam AI (STT or LLM).
+     * Returns true if quota was available and successfully consumed.
+     * Returns false if 2 queries have already been used today.
+     */
+    suspend fun recordSarvamUsage(): Boolean {
+        val today = getTodayDateString()
+        var permitted = false
+        context.dataStore.edit { prefs ->
+            val date = prefs[SARVAM_USAGE_DATE] ?: ""
+            val currentCount = if (date == today) (prefs[SARVAM_USAGE_COUNT] ?: 0) else 0
+            if (currentCount < DAILY_AI_QUERY_LIMIT) {
+                prefs[SARVAM_USAGE_DATE] = today
+                prefs[SARVAM_USAGE_COUNT] = currentCount + 1
+                permitted = true
+            } else {
+                permitted = false
+            }
+        }
+        return permitted
+    }
+
+    suspend fun canUseKindwise(): Boolean {
+        val today = getTodayDateString()
+        val prefs = context.dataStore.data.first()
+        val date = prefs[KINDWISE_USAGE_DATE] ?: ""
+        val count = if (date == today) (prefs[KINDWISE_USAGE_COUNT] ?: 0) else 0
+        return count < DAILY_AI_QUERY_LIMIT
+    }
+
+    /**
+     * Attempts to consume 1 query quota for Kindwise Crop Health scan.
+     * Returns true if quota was available and successfully consumed.
+     * Returns false if 2 queries have already been used today.
+     */
+    suspend fun recordKindwiseUsage(): Boolean {
+        val today = getTodayDateString()
+        var permitted = false
+        context.dataStore.edit { prefs ->
+            val date = prefs[KINDWISE_USAGE_DATE] ?: ""
+            val currentCount = if (date == today) (prefs[KINDWISE_USAGE_COUNT] ?: 0) else 0
+            if (currentCount < DAILY_AI_QUERY_LIMIT) {
+                prefs[KINDWISE_USAGE_DATE] = today
+                prefs[KINDWISE_USAGE_COUNT] = currentCount + 1
+                permitted = true
+            } else {
+                permitted = false
+            }
+        }
+        return permitted
+    }
+
     suspend fun clearAllData() {
         context.dataStore.edit { prefs ->
             prefs.clear()
         }
     }
 }
+

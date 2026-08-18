@@ -60,6 +60,8 @@ fun ChatScreen(
     val currentlySpeakingId by viewModel.ttsManager.currentlySpeakingId.collectAsStateWithLifecycle()
     val lastDetectedLanguage by viewModel.lastDetectedLanguage.collectAsStateWithLifecycle()
     val isTranscribingVoice by viewModel.isTranscribingVoice.collectAsStateWithLifecycle()
+    val sarvamQueriesUsed by viewModel.sarvamQueriesUsed.collectAsStateWithLifecycle()
+    val kindwiseQueriesUsed by viewModel.kindwiseQueriesUsed.collectAsStateWithLifecycle()
 
     var textInput by remember { mutableStateOf("") }
     var isVoiceRecording by remember { mutableStateOf(false) }
@@ -205,11 +207,33 @@ fun ChatScreen(
                             )
                         )
                         Text(
-                            text = "Sarvam Indic Multi-Language AI",
+                            text = if (sarvamQueriesUsed >= 2) "Offline AI Engine Active" else "Sarvam Indic Multi-Language AI",
                             style = MaterialTheme.typography.bodySmall.copy(
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = if (sarvamQueriesUsed >= 2) Color(0xFFEAB308) else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         )
+                    }
+                },
+                actions = {
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = if (sarvamQueriesUsed >= 2) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.primaryContainer,
+                        modifier = Modifier.padding(end = 12.dp)
+                    ) {
+                        val remaining = (2 - sarvamQueriesUsed).coerceAtLeast(0)
+                        Row(
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text(
+                                text = if (sarvamQueriesUsed >= 2) "⚡ 2/2 used" else "⚡ $remaining/2 left",
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (sarvamQueriesUsed >= 2) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                            )
+                        }
                     }
                 },
                 navigationIcon = {

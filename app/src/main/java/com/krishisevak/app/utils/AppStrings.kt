@@ -235,7 +235,16 @@ object AppStrings {
             "onboarding_name_prompt" to "What is your name?",
             "onboarding_name_hint" to "Enter your full name",
             "onboarding_lang_prompt" to "Choose your preferred language",
-            "onboarding_start_btn" to "Get Started Now"
+            "onboarding_start_btn" to "Get Started Now",
+
+            // Daily AI Quota Limiter
+            "ai_quota_remaining" to "⚡ %d/2 AI queries left today",
+            "ai_quota_zero" to "⚡ 2/2 used today (Offline AI Active)",
+            "kindwise_quota_remaining" to "📷 %d/2 Kindwise scans left today",
+            "kindwise_quota_zero" to "📷 2/2 scans used today (Offline Active)",
+            "daily_limit_offline_active" to "⚠️ Daily online AI limit reached (2/2 queries used today). Switched to fast offline smart advisory engine.",
+            "daily_voice_limit_reached" to "Daily Sarvam AI voice limit reached (2/2 queries used today). Please type your question.",
+            "daily_scan_limit_reached" to "Daily Kindwise scan limit reached (2/2 scans used today). Analyzing using offline crop doctor engine."
         ),
 
         // =========================================================================
@@ -453,7 +462,16 @@ object AppStrings {
             "onboarding_name_prompt" to "आपका शुभ नाम क्या है?",
             "onboarding_name_hint" to "अपना पूरा नाम दर्ज करें",
             "onboarding_lang_prompt" to "अपनी पसंदीदा भाषा चुनें",
-            "onboarding_start_btn" to "अब शुरू करें"
+            "onboarding_start_btn" to "अब शुरू करें",
+
+            // Daily AI Quota Limiter
+            "ai_quota_remaining" to "⚡ आज %d/2 AI प्रश्न शेष",
+            "ai_quota_zero" to "⚡ आज 2/2 प्रयुक्त (ऑफ़लाइन AI सक्रिय)",
+            "kindwise_quota_remaining" to "📷 आज %d/2 काइंडवाइज़ स्कैन शेष",
+            "kindwise_quota_zero" to "📷 आज 2/2 स्कैन प्रयुक्त (ऑफ़लाइन सक्रिय)",
+            "daily_limit_offline_active" to "⚠️ दैनिक ऑनलाइन AI सीमा समाप्त (आज 2/2 प्रश्न प्रयुक्त)। ऑफ़लाइन स्मार्ट कृषि सलाहकार सक्रिय है।",
+            "daily_voice_limit_reached" to "दैनिक सर्वम AI वॉयस सीमा समाप्त (आज 2/2 प्रश्न प्रयुक्त)। कृपया अपना प्रश्न टाइप करें।",
+            "daily_scan_limit_reached" to "दैनिक काइंडवाइज़ स्कैन सीमा समाप्त (आज 2/2 स्कैन प्रयुक्त)। ऑफ़लाइन क्रॉप डॉक्टर इंजन द्वारा विश्लेषण किया जा रहा है।"
         ),
 
         // =========================================================================

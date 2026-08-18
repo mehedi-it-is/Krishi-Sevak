@@ -31,6 +31,12 @@ class ChatViewModel(
     val messages: StateFlow<List<MessageEntity>> = repository.getMessagesForChat(currentChatId)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    val sarvamQueriesUsed: StateFlow<Int> = dataStoreManager.sarvamQueriesUsedTodayFlow
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
+    val kindwiseQueriesUsed: StateFlow<Int> = dataStoreManager.kindwiseQueriesUsedTodayFlow
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
     private val _uiState = MutableStateFlow<ChatUiState>(ChatUiState.Idle)
     val uiState: StateFlow<ChatUiState> = _uiState.asStateFlow()
 
@@ -69,7 +75,19 @@ class ChatViewModel(
                 }
             } catch (e: Exception) {
                 android.util.Log.e("ChatVM", "Sarvam STT failed: ${e.message}")
-                _uiState.value = ChatUiState.Error("Sarvam AI STT connection failed: ${e.localizedMessage ?: "Please try again."}")
+                if (e.message == "DAILY_SARVAM_LIMIT_REACHED" || e.cause?.message == "DAILY_SARVAM_LIMIT_REACHED") {
+                    val limitMsg = when (_userLanguageCode.value.lowercase()) {
+                        "hi" -> "दैनिक सर्वम AI वॉयस सीमा समाप्त (आज 2/2 प्रश्न प्रयुक्त)। कृपया अपना प्रश्न टाइप करें।"
+                        "mr" -> "दैनिक सर्वम AI व्हॉइस मर्यादा संपली (आज 2/2 प्रश्न वापरले). कृपया आपला प्रश्न टाईप करा."
+                        "bn" -> "দৈনিক সর্বম AI ভয়েস সীমা সমাপ্ত (আজ ২/২ প্রশ্ন ব্যবহৃত)। দয়া করে আপনার প্রশ্নটি টাইপ করুন।"
+                        "te" -> "రోజువారీ సర్వం AI వాయిస్ పరిమితి ముగిసింది (ఈరోజు 2/2 ప్రశ్నలు ఉపయోగించబడ్డాయి). దయచేసి టైప్ చేయండి."
+                        "ta" -> "தினசரி சர்வம் AI குரல் வரம்பு முடிந்தது (இன்று 2/2 பயன்படுத்தப்பட்டது). தட்டச்சு செய்யவும்."
+                        else -> "Daily Sarvam AI voice limit reached (2/2 queries used today). Please type your query."
+                    }
+                    _uiState.value = ChatUiState.Error(limitMsg)
+                } else {
+                    _uiState.value = ChatUiState.Error("Sarvam AI STT connection failed: ${e.localizedMessage ?: "Please try again."}")
+                }
             } finally {
                 _isTranscribingVoice.value = false
                 try { audioFile.delete() } catch (_: Exception) {}

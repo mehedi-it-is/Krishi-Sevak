@@ -26,6 +26,9 @@ class CropDoctorViewModel(
     val userLanguageCode: StateFlow<String> = dataStoreManager.userLanguageCodeFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "en")
 
+    val kindwiseQueriesUsed: StateFlow<Int> = dataStoreManager.kindwiseQueriesUsedTodayFlow
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
     private val _doctorResult = MutableStateFlow<CropDoctorResult?>(null)
     val doctorResult: StateFlow<CropDoctorResult?> = _doctorResult.asStateFlow()
 
@@ -40,17 +43,26 @@ class CropDoctorViewModel(
                 plantScanDao.getRecentScans(10)
             }
             
-            // Try to get disease from API
+            // Check daily Kindwise rate limit (2 queries/day per user)
+            val allowed = dataStoreManager.recordKindwiseUsage()
             var diseaseName = "Unknown"
-            try {
-                val request = KindwiseHealthRequest(images = listOf("data:image/jpeg;base64,$base64Image"))
-                val response = kindwiseApi.analyzeCropHealth(kindwiseApiKey, request)
-                val topSuggestion = response.result?.disease?.suggestions?.firstOrNull()
-                if (topSuggestion != null) {
-                    diseaseName = topSuggestion.name ?: "Pest / Fungal Infection"
+            var isOfflineFallback = false
+
+            if (allowed) {
+                try {
+                    val request = KindwiseHealthRequest(images = listOf("data:image/jpeg;base64,$base64Image"))
+                    val response = kindwiseApi.analyzeCropHealth(kindwiseApiKey, request)
+                    val topSuggestion = response.result?.disease?.suggestions?.firstOrNull()
+                    if (topSuggestion != null) {
+                        diseaseName = topSuggestion.name ?: "Pest / Fungal Infection"
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    diseaseName = "Leaf Spot / Fungal Infection"
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
+            } else {
+                isOfflineFallback = true
+                diseaseName = "Leaf Spot / Rust (Offline Engine)"
             }
 
             // Using CropDoctorEngine with the diagnosed disease context for structured report
@@ -64,7 +76,22 @@ class CropDoctorViewModel(
 
             val lang = userLanguageCode.value
             val result = CropDoctorEngine.evaluate(input, lang)
-            _doctorResult.value = result
+            val finalResult = if (isOfflineFallback) {
+                val fallbackNotice = when (lang.lowercase()) {
+                    "hi" -> "⚠️ दैनिक काइंडवाइज़ स्कैन सीमा समाप्त (आज 2/2 प्रयुक्त)। ऑफ़लाइन क्रॉप डॉक्टर इंजन द्वारा रिपोर्ट तैयार की गई।"
+                    "mr" -> "⚠️ दैनिक काइंडवाइज स्कॅन मर्यादा संपली (आज 2/2 वापरले). ऑफलाइन क्रॉप डॉक्टर इंजिनद्वारे अहवाल तयार केला गेला."
+                    "bn" -> "⚠️ দৈনিক কাইন্ডওয়াইজ স্ক্যান সীমা সমাপ্ত (আজ ২/২ ব্যবহৃত)। অফলাইন ক্রপ ডক্টর ইঞ্জিন দ্বারা রিপোর্ট তৈরি করা হয়েছে।"
+                    "te" -> "⚠️ రోజువారీ కైండ్‌వైజ్ స్కాన్ పరిమితి ముగిసింది (ఈరోజు 2/2 ఉపయోగించబడ్డాయి). ఆఫ్‌లైన్ క్రాప్ డాక్టర్ ఇంజిన్ ద్వారా నివేదిక తయారు చేయబడింది."
+                    "ta" -> "⚠️ தினசரி கைண்ட்வைஸ் ஸ்கேன் வரம்பு முடிந்தது (இன்று 2/2 பயன்படுத்தப்பட்டது). ஆஃப்லைன் பயிர் மருத்துவர் முறை மூலம் அறிக்கை உருவாக்கப்பட்டுள்ளது."
+                    else -> "⚠️ Daily Kindwise scan limit reached (2/2 scans used today). Report generated using offline Crop Doctor engine."
+                }
+                result.copy(
+                    weatherAlert = if (result.weatherAlert != null) "$fallbackNotice\n\n${result.weatherAlert}" else fallbackNotice
+                )
+            } else {
+                result
+            }
+            _doctorResult.value = finalResult
 
             // Save to Room DB
             if (diseaseName != "Unknown") {
@@ -73,8 +100,8 @@ class CropDoctorViewModel(
                         plantName = "Crop",
                         disease = diseaseName,
                         isHealthy = diseaseName.contains("Healthy", ignoreCase = true) || diseaseName.contains("None", ignoreCase = true),
-                        probability = 0.9f,
-                        treatment = result.recommendations.firstOrNull() ?: "",
+                        probability = if (isOfflineFallback) 0.75f else 0.9f,
+                        treatment = finalResult.recommendations.firstOrNull() ?: "",
                         imageUri = null
                     )
                     plantScanDao.insertScan(scan)
