@@ -10,6 +10,7 @@ import com.krishisevak.app.data.remote.mandi.MandiMockProvider
 import com.krishisevak.app.data.remote.sarvam.SarvamApi
 import com.krishisevak.app.data.remote.sarvam.SarvamChatMessage
 import com.krishisevak.app.data.remote.sarvam.SarvamChatRequest
+import com.krishisevak.app.utils.AppStrings
 import com.krishisevak.app.utils.LocalSmartAiEngine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -171,15 +172,7 @@ class ChatRepository(
                 getFallbackAdvisory(targetLanguage, diseaseDiagnosis)
             }
         } else {
-            val limitHeader = when (langCode.lowercase()) {
-                "hi" -> "⚡ [दैनिक AI सीमा: आज 2/2 प्रश्न प्रयुक्त। ऑफ़लाइन सलाहकार सक्रिय]\n\n"
-                "mr" -> "⚡ [दैनिक AI मर्यादा: आज 2/2 प्रश्न वापरले. ऑफलाइन सल्लागार सक्रिय]\n\n"
-                "bn" -> "⚡ [দৈনিক AI সীমা: আজ ২/২ প্রশ্ন ব্যবহৃত। অফলাইন পরামর্শ সক্রিয়]\n\n"
-                "te" -> "⚡ [రోజువారీ AI పరిమితి: ఈరోజు 2/2 ప్రశ్నలు ఉపయోగించబడ్డాయి. ఆఫ్‌లైన్ ఇంజిన్ సక్రియం]\n\n"
-                "ta" -> "⚡ [தினசரி AI வரம்பு: இன்று 2/2 பயன்படுத்தப்பட்டது. ஆஃப்லைன் முறை செயல்படுகிறது]\n\n"
-                else -> "⚡ [Daily AI Limit: 2/2 queries used today. Switched to Offline Advisory Engine]\n\n"
-            }
-            limitHeader + getFallbackAdvisory(targetLanguage, diseaseDiagnosis)
+            AppStrings.get("daily_query_limit_exhausted", langCode)
         }
 
         // Save AI message to Room DB
@@ -253,15 +246,7 @@ class ChatRepository(
                 LocalSmartAiEngine.generateLocalAdvisory(userQuery, langCode)
             }
         } else {
-            val limitHeader = when (langCode.lowercase()) {
-                "hi" -> "⚡ [दैनिक AI सीमा: आज 2/2 प्रश्न प्रयुक्त। ऑफ़लाइन सलाहकार सक्रिय]\n\n"
-                "mr" -> "⚡ [दैनिक AI मर्यादा: आज 2/2 प्रश्न वापरले. ऑफलाइन सल्लागार सक्रिय]\n\n"
-                "bn" -> "⚡ [দৈনিক AI সীমা: আজ ২/২ প্রশ্ন ব্যবহৃত। অফলাইন পরামর্শ সক্রিয়]\n\n"
-                "te" -> "⚡ [రోజువారీ AI పరిమితి: ఈరోజు 2/2 ప్రశ్నలు ఉపయోగించబడ్డాయి. ఆఫ్‌లైన్ ఇంజిన్ సక్రియం]\n\n"
-                "ta" -> "⚡ [தினசரி AI வரம்பு: இன்று 2/2 பயன்படுத்தப்பட்டது. ஆஃப்லைன் முறை செயல்படுகிறது]\n\n"
-                else -> "⚡ [Daily AI Limit: 2/2 queries used today. Switched to Offline Advisory Engine]\n\n"
-            }
-            limitHeader + LocalSmartAiEngine.generateLocalAdvisory(userQuery, langCode)
+            AppStrings.get("daily_query_limit_exhausted", langCode)
         }
 
         // Insert AI message into Room DB

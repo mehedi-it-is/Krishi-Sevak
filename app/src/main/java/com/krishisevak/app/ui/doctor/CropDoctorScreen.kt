@@ -188,25 +188,6 @@ fun CropDoctorScreen(
                     }
                 },
                 actions = {
-                    Surface(
-                        shape = RoundedCornerShape(12.dp),
-                        color = if (kindwiseQueriesUsed >= 2) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.primaryContainer,
-                        modifier = Modifier.padding(end = 4.dp)
-                    ) {
-                        val remaining = (2 - kindwiseQueriesUsed).coerceAtLeast(0)
-                        Row(
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = if (kindwiseQueriesUsed >= 2) "📷 2/2 used" else "📷 $remaining/2 left",
-                                style = MaterialTheme.typography.labelSmall.copy(
-                                    fontWeight = FontWeight.Bold,
-                                    color = if (kindwiseQueriesUsed >= 2) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onPrimaryContainer
-                                )
-                            )
-                        }
-                    }
                     doctorResult?.let { res ->
                         val ttsText = "Crop Doctor assessment: Farm risk level is ${res.riskLevel} with a risk score of ${res.riskScore} percent. Potential risks: ${res.potentialRisks.joinToString(". ")}. Recommendations: ${res.recommendations.joinToString(". ")}"
                         IconButton(onClick = { viewModel.toggleTts("crop_doctor", ttsText) }) {

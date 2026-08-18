@@ -67,101 +67,24 @@ fun OnboardingScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Circular Illustration matching screenshot
-            Box(
-                modifier = Modifier
-                    .size(220.dp)
-                    .background(Color(0xFF13462D), CircleShape),
-                contentAlignment = Alignment.Center
+            // App Logo in Login / Onboarding Screen
+            Surface(
+                modifier = Modifier.size(200.dp),
+                shape = CircleShape,
+                color = Color(0xFFF4F7F4),
+                border = BorderStroke(3.dp, Color(0xFF16A34A).copy(alpha = 0.4f)),
+                shadowElevation = 16.dp
             ) {
-                Canvas(modifier = Modifier.size(190.dp)) {
-                    val w = size.width
-                    val h = size.height
-
-                    // Subtle ground shadow mound
-                    drawOval(
-                        color = Color(0xFF0A2E1C),
-                        topLeft = Offset(w * 0.32f, h * 0.69f),
-                        size = Size(w * 0.36f, h * 0.08f)
-                    )
-
-                    // Sun with rays on top-left
-                    val sunCenter = Offset(w * 0.33f, h * 0.32f)
-                    val sunRadius = w * 0.07f
-                    drawCircle(
-                        color = Color(0xFFD4E157),
-                        radius = sunRadius,
-                        center = sunCenter
-                    )
-
-                    // Sun rays
-                    val rayColor = Color(0xFFD4E157)
-                    val rayLen = w * 0.035f
-                    val rayDist = sunRadius + 6f
-                    val rayAngles = listOf(45.0, 90.0, 135.0, 180.0, 225.0, 270.0, 315.0, 360.0)
-                    for (ang in rayAngles) {
-                        val rad = Math.toRadians(ang)
-                        val startX = (sunCenter.x + Math.cos(rad) * rayDist).toFloat()
-                        val startY = (sunCenter.y + Math.sin(rad) * rayDist).toFloat()
-                        val endX = (sunCenter.x + Math.cos(rad) * (rayDist + rayLen)).toFloat()
-                        val endY = (sunCenter.y + Math.sin(rad) * (rayDist + rayLen)).toFloat()
-                        drawLine(
-                            color = rayColor,
-                            start = Offset(startX, startY),
-                            end = Offset(endX, endY),
-                            strokeWidth = 2.5f,
-                            cap = StrokeCap.Round
-                        )
-                    }
-
-                    // Background darker leaf (reaching upwards)
-                    val backLeaf = Path().apply {
-                        moveTo(w * 0.50f, h * 0.44f)
-                        cubicTo(
-                            w * 0.50f, h * 0.30f,
-                            w * 0.68f, h * 0.28f,
-                            w * 0.68f, h * 0.32f
-                        )
-                        cubicTo(
-                            w * 0.68f, h * 0.40f,
-                            w * 0.54f, h * 0.48f,
-                            w * 0.50f, h * 0.52f
-                        )
-                        close()
-                    }
-                    drawPath(path = backLeaf, color = Color(0xFF1E5C3B))
-
-                    // Left leaf (light mint green)
-                    val leftLeaf = Path().apply {
-                        moveTo(w * 0.48f, h * 0.48f)
-                        cubicTo(
-                            w * 0.32f, h * 0.42f,
-                            w * 0.32f, h * 0.35f,
-                            w * 0.46f, h * 0.44f
-                        )
-                        close()
-                    }
-                    drawPath(path = leftLeaf, color = Color(0xFF86EFAC))
-
-                    // Right leaf (pale mint white)
-                    val rightLeaf = Path().apply {
-                        moveTo(w * 0.52f, h * 0.46f)
-                        cubicTo(
-                            w * 0.66f, h * 0.40f,
-                            w * 0.66f, h * 0.34f,
-                            w * 0.50f, h * 0.42f
-                        )
-                        close()
-                    }
-                    drawPath(path = rightLeaf, color = Color(0xFFD1FAE5))
-
-                    // Center white vertical sprout stem
-                    drawLine(
-                        color = Color.White,
-                        start = Offset(w * 0.50f, h * 0.72f),
-                        end = Offset(w * 0.50f, h * 0.40f),
-                        strokeWidth = 5.dp.toPx(),
-                        cap = StrokeCap.Round
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    androidx.compose.foundation.Image(
+                        painter = androidx.compose.ui.res.painterResource(id = com.krishisevak.app.R.drawable.ic_app_logo),
+                        contentDescription = "Krishi Sevak App Logo",
+                        modifier = Modifier
+                            .size(150.dp)
+                            .padding(10.dp)
                     )
                 }
             }

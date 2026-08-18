@@ -15,12 +15,12 @@ class AiQuotaLimiterTest {
     }
 
     @Test
-    fun testLocalSmartAiEngineFallbackOnQuotaExceeded() {
-        val userQuery = "How to treat wheat rust?"
-        val localAdvisory = LocalSmartAiEngine.generateLocalAdvisory(userQuery, "en")
-        
-        assertTrue("Advisory should not be empty", localAdvisory.isNotBlank())
-        assertTrue("Advisory should contain agricultural advice", localAdvisory.contains("Advisory") || localAdvisory.contains("guidance") || localAdvisory.contains("farming") || localAdvisory.contains("Crop"))
+    fun testDailyLimitExhaustedMessage() {
+        val enMsg = com.krishisevak.app.utils.AppStrings.get("daily_query_limit_exhausted", "en")
+        assertEquals("You have used your daily query limit.", enMsg)
+
+        val hiMsg = com.krishisevak.app.utils.AppStrings.get("daily_query_limit_exhausted", "hi")
+        assertEquals("आपने अपनी दैनिक प्रश्न सीमा समाप्त कर ली है।", hiMsg)
     }
 
     @Test
