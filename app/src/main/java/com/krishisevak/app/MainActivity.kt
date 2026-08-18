@@ -92,6 +92,7 @@ class MainActivity : ComponentActivity() {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
         val sarvamApi = sarvamRetrofit.create(SarvamApi::class.java)
+        ttsManager.setSarvamConfig(sarvamApi, BuildConfig.SARVAM_API_KEY)
 
         repository = ChatRepository(
             chatDao = db.chatDao(),

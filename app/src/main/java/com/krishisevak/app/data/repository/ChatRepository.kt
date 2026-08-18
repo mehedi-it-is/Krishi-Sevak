@@ -95,7 +95,7 @@ class ChatRepository(
         targetLanguage: String,
         langCode: String = "en",
         weatherInfo: String? = null
-    ): String = withContext(Dispatchers.IO) {
+    ): Pair<String, String> = withContext(Dispatchers.IO) {
         // Insert User message into Room DB
         val userMsgId = java.util.UUID.randomUUID().toString()
         chatDao.insertMessage(
@@ -149,28 +149,15 @@ class ChatRepository(
             4. Do NOT use or mix any other language.
         """.trimIndent()
 
-        val sarvamRequest = SarvamChatRequest(
-            messages = listOf(
-                SarvamChatMessage(role = "system", content = hiddenSystemPrompt),
-                SarvamChatMessage(role = "user", content = userQuery.ifBlank { "Please tell me how to save my crop." })
-            )
-        )
-
         // Step 4: Call Sarvam AI LLM if within daily 2 queries limit
         val sarvamAllowed = dataStoreManager.recordSarvamUsage()
         val aiResponseText = if (sarvamAllowed) {
-            try {
-                val response = sarvamApi.generateAdvisory(sarvamApiKey, sarvamRequest)
-                val content = response.choices?.firstOrNull()?.message?.content
-                if (!content.isNullOrBlank()) {
-                    content
-                } else {
-                    getFallbackAdvisory(targetLanguage, diseaseDiagnosis)
-                }
-            } catch (e: Exception) {
-                android.util.Log.e("ChatRepository", "Sarvam generateAdvisory error: ${e.message}", e)
-                getFallbackAdvisory(targetLanguage, diseaseDiagnosis)
-            }
+            val messages = listOf(
+                SarvamChatMessage(role = "system", content = hiddenSystemPrompt),
+                SarvamChatMessage(role = "user", content = userQuery.ifBlank { "Please tell me how to save my crop." })
+            )
+            val generated = callSarvamWithModelFallback(messages)
+            generated ?: getFallbackAdvisory(targetLanguage, diseaseDiagnosis)
         } else {
             AppStrings.get("daily_query_limit_exhausted", langCode)
         }
@@ -186,7 +173,7 @@ class ChatRepository(
             )
         )
 
-        return@withContext aiResponseText
+        return@withContext Pair(aiResponseText, aiMsgId)
     }
 
     /**
@@ -198,7 +185,7 @@ class ChatRepository(
         targetLanguage: String,
         langCode: String = "en",
         weatherInfo: String? = null
-    ): String = withContext(Dispatchers.IO) {
+    ): Pair<String, String> = withContext(Dispatchers.IO) {
         // Insert User message into Room DB
         val userMsgId = java.util.UUID.randomUUID().toString()
         chatDao.insertMessage(
@@ -215,36 +202,25 @@ class ChatRepository(
         }
 
         val systemPrompt = """
-            You are Krishi Sevak, a knowledgeable and practical AI farming companion for Indian farmers.
-            Current Weather: ${weatherInfo ?: "Clear Skies, 29°C"}
-            Today's Mandi Market Rates: $mandiContext
+            You are Krishi Sevak, an expert agricultural AI assistant for Indian farmers.
+            Weather: ${weatherInfo ?: "Clear Skies, 29°C"}
+            Mandi Rates: $mandiContext
             
-            [CRITICAL MULTILINGUAL INSTRUCTION]
-            - Respond helpfully, practical to farming in India.
-            - You MUST answer strictly and completely in the user's language: $targetLanguage ($langCode).
-            - Do NOT switch to or mix English or Hindi if the user asked in $targetLanguage.
+            [INSTRUCTIONS]
+            1. TONE & WORDS: Use simple, easy-to-understand words suitable for farmers. Answer the farmer's question directly, accurately, and completely.
+            2. FORMAT: Keep the response compact yet detailed with practical solutions (cause, remedy, dosage per liter, best spray time, prevention).
+            3. COMPLETENESS: Ensure the answer is 100% complete and finishes properly without cutting off mid-sentence.
+            4. STRICT LANGUAGE: You MUST answer strictly and completely in $targetLanguage ($langCode). Never mix languages.
         """.trimIndent()
-
-        val sarvamRequest = SarvamChatRequest(
-            messages = listOf(
-                SarvamChatMessage(role = "system", content = systemPrompt),
-                SarvamChatMessage(role = "user", content = userQuery)
-            )
-        )
 
         val sarvamAllowed = dataStoreManager.recordSarvamUsage()
         val aiResponseText = if (sarvamAllowed) {
-            try {
-                val response = sarvamApi.generateAdvisory(sarvamApiKey, sarvamRequest)
-                val content = response.choices?.firstOrNull()?.message?.content
-                if (!content.isNullOrBlank()) {
-                    content
-                } else {
-                    LocalSmartAiEngine.generateLocalAdvisory(userQuery, langCode)
-                }
-            } catch (e: Exception) {
-                LocalSmartAiEngine.generateLocalAdvisory(userQuery, langCode)
-            }
+            val messages = listOf(
+                SarvamChatMessage(role = "system", content = systemPrompt),
+                SarvamChatMessage(role = "user", content = userQuery)
+            )
+            val generated = callSarvamWithModelFallback(messages)
+            generated ?: LocalSmartAiEngine.generateLocalAdvisory(userQuery, langCode)
         } else {
             AppStrings.get("daily_query_limit_exhausted", langCode)
         }
@@ -260,7 +236,33 @@ class ChatRepository(
             )
         )
 
-        return@withContext aiResponseText
+        return@withContext Pair(aiResponseText, aiMsgId)
+    }
+
+    /**
+     * Executes Sarvam Chat Completion with active model fallback (sarvam-105b-conversations -> sarvam-105b).
+     */
+    private suspend fun callSarvamWithModelFallback(messages: List<SarvamChatMessage>): String? {
+        val modelsToTry = listOf("sarvam-105b-conversations", "sarvam-105b")
+        for (modelName in modelsToTry) {
+            try {
+                val request = SarvamChatRequest(
+                    model = modelName,
+                    messages = messages,
+                    temperature = 0.3,
+                    maxTokens = 1024
+                )
+                val response = sarvamApi.generateAdvisory(sarvamApiKey, request)
+                val content = response.choices?.firstOrNull()?.message?.content
+                if (!content.isNullOrBlank()) {
+                    android.util.Log.d("ChatRepository", "Sarvam model $modelName SUCCESS")
+                    return content.trim()
+                }
+            } catch (e: Exception) {
+                android.util.Log.w("ChatRepository", "Sarvam model $modelName failed: ${e.message}")
+            }
+        }
+        return null
     }
 
     private fun getFallbackAdvisory(language: String, diagnosis: String): String {
@@ -277,6 +279,32 @@ class ChatRepository(
             "odia", "or" -> "ନିର୍ଣୟ: $diagnosis\n\nପରାମର୍ଶ:\n1. ପ୍ରଭାବିତ ପତ୍ରଗୁଡ଼ିକୁ ତୁରନ୍ତ ଅପସାରଣ କରନ୍ତୁ।\n2. 5 ମିଲି ନିମ ତେଲ 1 ଲିଟର ପାଣିରେ ମିଶାଇ ସନ୍ଧ୍ୟାରେ ଛିଟାନ୍ତୁ।\n3. ଜମିରେ ଜଳ ଜମାଟ ହେବାକୁ ଦିଅନ୍ତୁ ନାହିଁ।"
             else -> "Diagnosis: $diagnosis\n\nAdvisory:\n1. Remove infected leaves immediately.\n2. Spray Neem oil (5ml per litre of water) during evening hours.\n3. Avoid waterlogging in the field."
         }
+    }
+
+    /**
+     * Translates any chat message text into target Indic language using Sarvam AI
+     */
+    suspend fun translateText(
+        text: String,
+        targetLangCode: String,
+        targetLangName: String
+    ): String = withContext(Dispatchers.IO) {
+        if (text.isBlank()) return@withContext text
+        val prompt = """
+            Translate the following agricultural advisory or farming text accurately, naturally, and completely into $targetLangName ($targetLangCode).
+            Use simple, farmer-friendly words. Do not add any conversational preamble or notes. Return only the direct translation.
+            
+            Text to Translate:
+            $text
+        """.trimIndent()
+
+        val messages = listOf(
+            SarvamChatMessage(role = "system", content = "You are a professional multilingual translator specialized in Indian agriculture."),
+            SarvamChatMessage(role = "user", content = prompt)
+        )
+
+        val translated = callSarvamWithModelFallback(messages)
+        return@withContext translated ?: text
     }
 
     suspend fun clearAllDatabaseData() = withContext(Dispatchers.IO) {

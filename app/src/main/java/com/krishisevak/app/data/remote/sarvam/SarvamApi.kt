@@ -15,9 +15,10 @@ data class SarvamChatMessage(
 )
 
 data class SarvamChatRequest(
-    @SerializedName("model") val model: String = "sarvam-105b",
+    @SerializedName("model") val model: String = "sarvam-105b-conversations",
     @SerializedName("messages") val messages: List<SarvamChatMessage>,
-    @SerializedName("temperature") val temperature: Double = 0.7
+    @SerializedName("temperature") val temperature: Double = 0.3,
+    @SerializedName("max_tokens") val maxTokens: Int = 1024
 )
 
 data class SarvamChatResponse(
@@ -31,6 +32,22 @@ data class SarvamChoice(
 data class SarvamSttResponse(
     @SerializedName("transcript") val transcript: String?,
     @SerializedName("language_code") val languageCode: String?
+)
+
+data class SarvamTtsRequest(
+    @SerializedName("inputs") val inputs: List<String>,
+    @SerializedName("target_language_code") val targetLanguageCode: String = "hi-IN",
+    @SerializedName("speaker") val speaker: String? = "aditya",
+    @SerializedName("pitch") val pitch: Double? = 0.0,
+    @SerializedName("pace") val pace: Double? = 1.0,
+    @SerializedName("loudness") val loudness: Double? = 1.2,
+    @SerializedName("speech_sample_rate") val speechSampleRate: Int? = 16000,
+    @SerializedName("enable_preprocessing") val enablePreprocessing: Boolean = true,
+    @SerializedName("model") val model: String = "bulbul:v3"
+)
+
+data class SarvamTtsResponse(
+    @SerializedName("audios") val audios: List<String>?
 )
 
 interface SarvamApi {
@@ -48,4 +65,10 @@ interface SarvamApi {
         @Part("model") model: RequestBody,
         @Part("language_code") languageCode: RequestBody? = null
     ): SarvamSttResponse
+
+    @POST("text-to-speech")
+    suspend fun textToSpeech(
+        @Header("api-subscription-key") apiKey: String,
+        @Body request: SarvamTtsRequest
+    ): SarvamTtsResponse
 }

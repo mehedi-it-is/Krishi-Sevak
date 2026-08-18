@@ -1,9 +1,14 @@
 package com.krishisevak.app.utils
 
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
+import android.util.Base64
 import android.util.Log
+import com.krishisevak.app.data.remote.sarvam.SarvamApi
+import com.krishisevak.app.data.remote.sarvam.SarvamTtsRequest
 import com.krishisevak.app.data.remote.tts.EdgeTtsClient
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,12 +16,17 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.io.File
+import java.io.FileOutputStream
 import java.util.Locale
+import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 
-class TtsManager(private val context: Context) : TextToSpeech.OnInitListener {
+class TtsManager(
+    private val context: Context,
+    private var sarvamApi: SarvamApi? = null,
+    private var sarvamApiKey: String = ""
+) : TextToSpeech.OnInitListener {
 
     companion object {
         private const val TAG = "TtsManager"
@@ -37,6 +47,11 @@ class TtsManager(private val context: Context) : TextToSpeech.OnInitListener {
 
     init {
         localTts = TextToSpeech(context.applicationContext, this)
+    }
+
+    fun setSarvamConfig(api: SarvamApi, key: String) {
+        this.sarvamApi = api
+        this.sarvamApiKey = key
     }
 
     override fun onInit(status: Int) {
@@ -72,6 +87,23 @@ class TtsManager(private val context: Context) : TextToSpeech.OnInitListener {
         }
     }
 
+    private fun mapToSarvamLanguage(languageCode: String): String {
+        return when (languageCode.lowercase().trim()) {
+            "hi", "hindi" -> "hi-IN"
+            "bn", "bengali" -> "bn-IN"
+            "mr", "marathi" -> "mr-IN"
+            "te", "telugu" -> "te-IN"
+            "ta", "tamil" -> "ta-IN"
+            "kn", "kannada" -> "kn-IN"
+            "ml", "malayalam" -> "ml-IN"
+            "gu", "gujarati" -> "gu-IN"
+            "pa", "punjabi" -> "pa-IN"
+            "or", "od", "odia" -> "od-IN"
+            "en", "english" -> "en-IN"
+            else -> "hi-IN"
+        }
+    }
+
     private fun resolveLocale(languageCode: String): Locale {
         return when (languageCode.lowercase()) {
             "hi" -> Locale("hi", "IN")
@@ -95,9 +127,47 @@ class TtsManager(private val context: Context) : TextToSpeech.OnInitListener {
         return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 
+    private fun cleanTextForSpeech(raw: String): String {
+        return raw
+            .replace(Regex("[#*`_~]"), "")
+            .replace(Regex("\\bhttps?://\\S+"), "")
+            .replace(Regex("[🛡️🧪🔍⚖️🌾🩺📅📊📖🎓🎙️⚡📷🖼️💡✔️]"), "")
+            .trim()
+    }
+
     /**
-     * Fire-and-forget Neural TTS. Toggles pause if clicking the same item.
-     * Uses Microsoft Edge Neural TTS with instant fallback to on-device TTS.
+     * Synthesize audio file with Sarvam AI bulbul:v3
+     */
+    private suspend fun synthesizeWithSarvamBulbul(text: String, languageCode: String): File? = withContext(Dispatchers.IO) {
+        val api = sarvamApi ?: return@withContext null
+        if (sarvamApiKey.isBlank() || sarvamApiKey == "DEMO_SARVAM_KEY") return@withContext null
+
+        try {
+            val sarvamLang = mapToSarvamLanguage(languageCode)
+            val clean = cleanTextForSpeech(text).take(500)
+            if (clean.isBlank()) return@withContext null
+
+            val req = SarvamTtsRequest(
+                inputs = listOf(clean),
+                targetLanguageCode = sarvamLang,
+                model = "bulbul:v3"
+            )
+            val response = api.textToSpeech(sarvamApiKey, req)
+            val base64Audio = response.audios?.firstOrNull()
+            if (!base64Audio.isNullOrBlank()) {
+                val audioBytes = Base64.decode(base64Audio, Base64.DEFAULT)
+                val tempFile = File(context.cacheDir, "sarvam_bulbul_${UUID.randomUUID()}.wav")
+                FileOutputStream(tempFile).use { it.write(audioBytes) }
+                return@withContext tempFile
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Sarvam bulbul:v3 TTS failed: ${e.message}")
+        }
+        return@withContext null
+    }
+
+    /**
+     * Speaks aloud using Sarvam AI bulbul:v3 with instant fallback to Edge Neural and Local TTS.
      */
     fun speak(id: String, text: String, languageCode: String) {
         if (_currentlySpeakingId.value == id) {
@@ -109,28 +179,54 @@ class TtsManager(private val context: Context) : TextToSpeech.OnInitListener {
 
         currentTtsJob = coroutineScope.launch {
             _currentlySpeakingId.value = id
-            Log.d(TAG, "Attempting Edge Neural TTS for id=$id, lang=$languageCode")
-
-            if (!isNetworkAvailable()) {
-                Log.d(TAG, "No internet connection — immediately falling back to local TTS for id=$id, lang=$languageCode")
-                speakWithLocalEngine(id, text, languageCode)
+            val cleanText = cleanTextForSpeech(text)
+            if (cleanText.isBlank()) {
+                _currentlySpeakingId.value = null
                 return@launch
             }
 
-            // Attempt Edge Neural TTS first
-            val audioFile = try {
-                withTimeout(25_000) {
-                    edgeTtsClient.synthesizeToAudioFile(text, languageCode)
+            if (!isNetworkAvailable()) {
+                Log.d(TAG, "No internet connection — falling back to local TTS for id=$id")
+                speakWithLocalEngine(id, cleanText, languageCode)
+                return@launch
+            }
+
+            // Step 1: Try Sarvam AI bulbul:v3
+            val sarvamAudioFile = try {
+                withTimeout(15_000) {
+                    synthesizeWithSarvamBulbul(cleanText, languageCode)
                 }
             } catch (e: Exception) {
-                Log.w(TAG, "Edge TTS attempt failed: ${e.javaClass.simpleName}: ${e.message}")
                 null
             }
 
-            if (audioFile != null && isActive) {
+            if (sarvamAudioFile != null && isActive) {
+                Log.d(TAG, "Sarvam bulbul:v3 TTS SUCCESS — playing audio for id=$id")
+                edgeTtsClient.playAudio(
+                    file = sarvamAudioFile,
+                    onStart = { _currentlySpeakingId.value = id },
+                    onCompletion = {
+                        if (_currentlySpeakingId.value == id) {
+                            _currentlySpeakingId.value = null
+                        }
+                    }
+                )
+                return@launch
+            }
+
+            // Step 2: Fallback to Edge Neural TTS
+            val edgeAudioFile = try {
+                withTimeout(15_000) {
+                    edgeTtsClient.synthesizeToAudioFile(cleanText, languageCode)
+                }
+            } catch (e: Exception) {
+                null
+            }
+
+            if (edgeAudioFile != null && isActive) {
                 Log.d(TAG, "Edge TTS SUCCESS — playing audio for id=$id")
                 edgeTtsClient.playAudio(
-                    file = audioFile,
+                    file = edgeAudioFile,
                     onStart = { _currentlySpeakingId.value = id },
                     onCompletion = {
                         if (_currentlySpeakingId.value == id) {
@@ -139,48 +235,41 @@ class TtsManager(private val context: Context) : TextToSpeech.OnInitListener {
                     }
                 )
             } else if (isActive) {
-                // Fallback to local on-device TTS
-                Log.d(TAG, "Edge TTS failed or returned null — falling back to local TTS for id=$id, lang=$languageCode")
-                speakWithLocalEngine(id, text, languageCode)
+                // Step 3: Fallback to local on-device TTS
+                Log.d(TAG, "Falling back to local TTS for id=$id, lang=$languageCode")
+                speakWithLocalEngine(id, cleanText, languageCode)
             }
         }
     }
 
-    /**
-     * Suspending TTS for onboarding / sequential line-by-line speech.
-     */
     suspend fun speakAndWait(id: String, text: String, languageCode: String) {
         speakMutex.withLock {
             val deferred = CompletableDeferred<Unit>()
             pendingCompletions[id] = deferred
 
+            val cleanText = cleanTextForSpeech(text)
+
             if (!isNetworkAvailable()) {
-                Log.d(TAG, "No internet connection — immediately falling back to local TTS for id=$id")
-                speakWithLocalEngine(id, text, languageCode)
+                speakWithLocalEngine(id, cleanText, languageCode)
                 try {
-                    withTimeout(30000) {
-                        deferred.await()
-                    }
+                    withTimeout(30000) { deferred.await() }
                 } catch (e: TimeoutCancellationException) {
-                    Log.w(TAG, "speakAndWait timed out for id=$id")
                     pendingCompletions.remove(id)
                 }
                 return@withLock
             }
 
-            val audioFile = try {
-                withTimeout(25_000) {
-                    edgeTtsClient.synthesizeToAudioFile(text, languageCode)
+            val sarvamAudioFile = try {
+                withTimeout(15_000) {
+                    synthesizeWithSarvamBulbul(cleanText, languageCode)
                 }
             } catch (e: Exception) {
-                Log.w(TAG, "Edge TTS speakAndWait failed: ${e.message}")
                 null
             }
 
-            if (audioFile != null) {
-                Log.d(TAG, "Edge TTS speakAndWait SUCCESS for id=$id")
+            if (sarvamAudioFile != null) {
                 edgeTtsClient.playAudio(
-                    file = audioFile,
+                    file = sarvamAudioFile,
                     onStart = { _currentlySpeakingId.value = id },
                     onCompletion = {
                         if (_currentlySpeakingId.value == id) {
@@ -190,16 +279,33 @@ class TtsManager(private val context: Context) : TextToSpeech.OnInitListener {
                     }
                 )
             } else {
-                Log.d(TAG, "Edge TTS speakAndWait failed — falling back to local TTS for id=$id")
-                speakWithLocalEngine(id, text, languageCode)
+                val edgeAudioFile = try {
+                    withTimeout(15_000) {
+                        edgeTtsClient.synthesizeToAudioFile(cleanText, languageCode)
+                    }
+                } catch (e: Exception) {
+                    null
+                }
+
+                if (edgeAudioFile != null) {
+                    edgeTtsClient.playAudio(
+                        file = edgeAudioFile,
+                        onStart = { _currentlySpeakingId.value = id },
+                        onCompletion = {
+                            if (_currentlySpeakingId.value == id) {
+                                _currentlySpeakingId.value = null
+                            }
+                            pendingCompletions.remove(id)?.complete(Unit)
+                        }
+                    )
+                } else {
+                    speakWithLocalEngine(id, cleanText, languageCode)
+                }
             }
 
             try {
-                withTimeout(30000) {
-                    deferred.await()
-                }
+                withTimeout(30000) { deferred.await() }
             } catch (e: TimeoutCancellationException) {
-                Log.w(TAG, "speakAndWait timed out for id=$id")
                 pendingCompletions.remove(id)
             }
         }

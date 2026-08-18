@@ -77,11 +77,11 @@ class DataStoreManager(private val context: Context) {
     }
 
     val userLanguageCodeFlow: Flow<String> = context.dataStore.data.map { prefs ->
-        prefs[USER_LANGUAGE_CODE] ?: "hi"
+        prefs[USER_LANGUAGE_CODE] ?: "en"
     }
 
     val userLanguageNameFlow: Flow<String> = context.dataStore.data.map { prefs ->
-        prefs[USER_LANGUAGE_NAME] ?: "Hindi"
+        prefs[USER_LANGUAGE_NAME] ?: "English"
     }
 
     val isDarkModeFlow: Flow<Boolean> = context.dataStore.data.map { prefs ->
