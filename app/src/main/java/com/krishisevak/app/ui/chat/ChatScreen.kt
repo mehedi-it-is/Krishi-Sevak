@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.*
@@ -33,11 +34,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.krishisevak.app.utils.AppStrings
+import com.krishisevak.app.utils.ChatRecommendations
 
 private val supportedLanguages = listOf(
     Triple("en", "English", "English"),
@@ -357,10 +360,106 @@ fun ChatScreen(
     ) { paddingValues ->
         Box(modifier = Modifier.fillMaxSize().padding(paddingValues).background(MaterialTheme.colorScheme.background)) {
             if (messages.isEmpty() && uiState !is ChatUiState.Loading) {
-                Column(modifier = Modifier.fillMaxSize().padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                    Text(text = "🌾 " + AppStrings.get("app_title", userLangCode), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color(0xFF165231))
-                    Spacer(Modifier.height(8.dp))
-                    Text(text = "Speak or ask anything in any Indian language.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    item {
+                        Spacer(Modifier.height(8.dp))
+                        Surface(
+                            modifier = Modifier.size(60.dp),
+                            shape = CircleShape,
+                            color = Color(0xFFF4F7F4),
+                            border = BorderStroke(2.dp, Color(0xFF16A34A).copy(alpha = 0.4f)),
+                            shadowElevation = 4.dp
+                        ) {
+                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                androidx.compose.foundation.Image(
+                                    painter = androidx.compose.ui.res.painterResource(id = com.krishisevak.app.R.drawable.ic_app_logo),
+                                    contentDescription = "Krishi Sevak Logo",
+                                    modifier = Modifier.size(44.dp)
+                                )
+                            }
+                        }
+                        Spacer(Modifier.height(10.dp))
+                        Text(
+                            text = AppStrings.get("app_title", userLangCode),
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF165231)
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            text = ChatRecommendations.getSubtitle(userLangCode),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(horizontal = 12.dp)
+                        )
+                        Spacer(Modifier.height(16.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Start
+                        ) {
+                            Text(
+                                text = ChatRecommendations.getTitle(userLangCode),
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF165231)
+                            )
+                        }
+                        Spacer(Modifier.height(2.dp))
+                    }
+
+                    val recommendations = ChatRecommendations.getRecommendations(userLangCode)
+                    items(recommendations) { rec ->
+                        Surface(
+                            onClick = {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                viewModel.sendTextMessage(rec.prompt)
+                            },
+                            shape = RoundedCornerShape(14.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                            border = BorderStroke(1.dp, Color(0xFF165231).copy(alpha = 0.25f)),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                Text(text = rec.icon, fontSize = 22.sp)
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = rec.category,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color(0xFF165231)
+                                    )
+                                    Spacer(Modifier.height(2.dp))
+                                    Text(
+                                        text = rec.prompt,
+                                        fontSize = 13.sp,
+                                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
+                                Icon(
+                                    Icons.AutoMirrored.Filled.ArrowForward,
+                                    contentDescription = "Send",
+                                    tint = Color(0xFF165231),
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+                        }
+                    }
+                    item {
+                        Spacer(Modifier.height(16.dp))
+                    }
                 }
             } else {
                 LazyColumn(state = listState, modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
