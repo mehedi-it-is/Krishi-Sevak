@@ -6,14 +6,16 @@ import com.krishisevak.app.data.local.db.ChatEntity
 import com.krishisevak.app.data.local.db.MessageEntity
 import com.krishisevak.app.data.remote.kindwise.KindwiseApi
 import com.krishisevak.app.data.remote.kindwise.KindwiseHealthRequest
-import com.krishisevak.app.data.remote.mandi.MandiMockProvider
+import com.krishisevak.app.data.remote.mandi.RealMandiDirectory
 import com.krishisevak.app.data.remote.sarvam.SarvamApi
 import com.krishisevak.app.data.remote.sarvam.SarvamChatMessage
 import com.krishisevak.app.data.remote.sarvam.SarvamChatRequest
 import com.krishisevak.app.utils.AppStrings
 import com.krishisevak.app.utils.LocalSmartAiEngine
+import com.krishisevak.app.utils.UserLocationDetails
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -119,7 +121,7 @@ class ChatRepository(
                 val prob = ((topSuggestion?.probability ?: 0.88) * 100).toInt()
                 val desc = topSuggestion?.details?.description ?: "Abnormal leaf spotting and crop rust detected."
                 "Diagnosed Disease: $name (Confidence: $prob%). Details: $desc"
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 "Diagnosed Condition: Leaf Rust / Blight spots detected on crop sample."
             }
         } else {
@@ -127,8 +129,15 @@ class ChatRepository(
         }
 
         // Step 2: Retrieve Daily Mandi Prices context
-        val mandiContext = MandiMockProvider.getLocalMandiPrices().joinToString("; ") {
-            "${it.commodity} in ${it.market}: Rs. ${it.modalPrice}/quintal"
+        val city = dataStoreManager.locationCityFlow.first()
+        val district = dataStoreManager.locationDistrictFlow.first()
+        val state = dataStoreManager.locationStateFlow.first()
+        val lat = dataStoreManager.locationLatFlow.first()
+        val lon = dataStoreManager.locationLonFlow.first()
+        val loc = UserLocationDetails(city, district, state, lat, lon)
+        val (marketName, records) = RealMandiDirectory.getMandiDataForLocation(loc)
+        val mandiContext = records.take(6).joinToString("; ") {
+            "${it.commodity} in $marketName: Rs. ${it.modalPrice}/quintal"
         }
 
         // Step 3: Construct Hidden Context System Prompt for Sarvam LLM
@@ -197,8 +206,15 @@ class ChatRepository(
             )
         )
 
-        val mandiContext = MandiMockProvider.getLocalMandiPrices().joinToString("; ") {
-            "${it.commodity}: Rs. ${it.modalPrice}/quintal"
+        val city = dataStoreManager.locationCityFlow.first()
+        val district = dataStoreManager.locationDistrictFlow.first()
+        val state = dataStoreManager.locationStateFlow.first()
+        val lat = dataStoreManager.locationLatFlow.first()
+        val lon = dataStoreManager.locationLonFlow.first()
+        val loc = UserLocationDetails(city, district, state, lat, lon)
+        val (marketName, records) = RealMandiDirectory.getMandiDataForLocation(loc)
+        val mandiContext = records.take(6).joinToString("; ") {
+            "${it.commodity} in $marketName: Rs. ${it.modalPrice}/quintal"
         }
 
         val systemPrompt = """

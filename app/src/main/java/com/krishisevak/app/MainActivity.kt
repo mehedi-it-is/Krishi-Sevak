@@ -172,6 +172,10 @@ fun MainAppNavigation(
     kindwiseApi: com.krishisevak.app.data.remote.kindwise.KindwiseApi
 ) {
     val navController = rememberNavController()
+    val dashboardVm = remember {
+        DashboardViewModel(repository, dataStoreManager, locationHelper, ttsManager, mandiApi)
+    }
+    val schemesVm = remember { SchemesViewModel(dataStoreManager, ttsManager) }
 
     NavHost(
         navController = navController,
@@ -190,10 +194,6 @@ fun MainAppNavigation(
         }
 
         composable("dashboard") {
-            val dashboardVm = remember {
-                DashboardViewModel(repository, dataStoreManager, locationHelper, ttsManager, mandiApi)
-            }
-            val schemesVm = remember { SchemesViewModel(dataStoreManager, ttsManager) }
             DashboardScreen(
                 viewModel = dashboardVm,
                 schemesViewModel = schemesVm,

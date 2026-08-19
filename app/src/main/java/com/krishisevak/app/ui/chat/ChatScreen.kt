@@ -125,7 +125,7 @@ fun ChatScreen(
             val uri = com.krishisevak.app.utils.ImageHelper.createTempPictureUri(context)
             if (uri != null) {
                 tempCameraUri = uri
-                try { takePictureLauncher.launch(uri) } catch (e: Exception) { cameraLauncher.launch(null) }
+                try { takePictureLauncher.launch(uri) } catch (_: Exception) { cameraLauncher.launch(null) }
             } else { cameraLauncher.launch(null) }
         } else {
             Toast.makeText(context, "Camera permission required", Toast.LENGTH_SHORT).show()
@@ -138,7 +138,7 @@ fun ChatScreen(
             val uri = com.krishisevak.app.utils.ImageHelper.createTempPictureUri(context)
             if (uri != null) {
                 tempCameraUri = uri
-                try { takePictureLauncher.launch(uri) } catch (e: Exception) { cameraLauncher.launch(null) }
+                try { takePictureLauncher.launch(uri) } catch (_: Exception) { cameraLauncher.launch(null) }
             } else { cameraLauncher.launch(null) }
         } else {
             cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
@@ -284,12 +284,16 @@ fun ChatScreen(
                         IconButton(onClick = { haptic.performHapticFeedback(HapticFeedbackType.LongPress); showAttachmentDialog = true }, modifier = Modifier.size(44.dp).background(Color(0xFF165231), CircleShape)) {
                             Icon(Icons.Default.AddPhotoAlternate, contentDescription = "Attach", tint = Color.White)
                         }
-                        if (isVoiceRecording) {
+                        if (isVoiceRecording || isTranscribingVoice) {
                             Surface(shape = RoundedCornerShape(24.dp), color = Color(0xFFEF4444).copy(alpha = 0.12f), border = BorderStroke(1.dp, Color(0xFFEF4444)), modifier = Modifier.weight(1f).height(48.dp)) {
                                 Row(modifier = Modifier.padding(horizontal = 14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
                                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                         Box(modifier = Modifier.size(10.dp).background(Color(0xFFEF4444), CircleShape))
-                                        Text(text = "🎙️ Listening... (${recordingSeconds}s)", fontSize = 13.sp, color = Color(0xFFDC2626))
+                                        Text(
+                                            text = if (isTranscribingVoice) "⏳ Transcribing audio..." else "🎙️ Listening... (${recordingSeconds}s)",
+                                            fontSize = 13.sp,
+                                            color = Color(0xFFDC2626)
+                                        )
                                     }
                                     IconButton(onClick = { isVoiceRecording = false; try { voiceRecorder.stopRecording()?.delete() } catch (_: Exception) {} }) {
                                         Icon(Icons.Default.Close, contentDescription = "Cancel", tint = Color(0xFFDC2626), modifier = Modifier.size(18.dp))

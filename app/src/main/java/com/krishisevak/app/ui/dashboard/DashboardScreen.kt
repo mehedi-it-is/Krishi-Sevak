@@ -1153,13 +1153,13 @@ fun MandiTabView(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "${mandiPrices.size} Commodities Available",
+                    text = String.format(AppStrings.get("mandi_items_available", userLanguageCode), mandiPrices.size),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = "Unit: ₹ / Quintal (100 kg)",
+                    text = AppStrings.get("mandi_unit_quintal", userLanguageCode),
                     fontSize = 11.sp,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -1252,7 +1252,7 @@ fun MandiTabView(
                                         color = MaterialTheme.colorScheme.onSurface
                                     )
                                     Text(
-                                        text = "/ Quintal",
+                                        text = AppStrings.get("mandi_per_quintal", userLanguageCode),
                                         fontSize = 11.sp,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
@@ -1274,7 +1274,7 @@ fun MandiTabView(
                             ) {
                                 Icon(Icons.Default.LocationOn, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(14.dp))
                                 Text(
-                                    text = "${record.market ?: "${userLocation.cityName} Mandi"} (${record.displayDistance} km)",
+                                    text = String.format(AppStrings.get("mandi_distance_format", userLanguageCode), record.market ?: "${userLocation.cityName} Mandi", record.displayDistance),
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Medium,
                                     color = MaterialTheme.colorScheme.primary
@@ -1309,13 +1309,13 @@ fun MandiTabView(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                text = "Range: ₹${record.minPrice ?: "---"} - ₹${record.maxPrice ?: "---"}",
+                                text = String.format(AppStrings.get("mandi_range_prefix", userLanguageCode), record.minPrice ?: "---", record.maxPrice ?: "---"),
                                 fontSize = 11.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             record.retailPrice?.let {
                                 Text(
-                                    text = "Est. Retail: ~₹$it/kg",
+                                    text = String.format(AppStrings.get("mandi_est_retail", userLanguageCode), it),
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     color = MaterialTheme.colorScheme.onSurface

@@ -201,7 +201,7 @@ class TtsManager(
                 withTimeout(7_000) {
                     synthesizeWithSarvamBulbul(cleanText, languageCode)
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 null
             }
 
@@ -246,7 +246,7 @@ class TtsManager(
                 speakWithLocalEngine(id, cleanText, languageCode)
                 try {
                     withTimeout(20_000) { deferred.await() }
-                } catch (e: TimeoutCancellationException) {
+                } catch (_: TimeoutCancellationException) {
                     pendingCompletions.remove(id)
                 }
                 return@withLock
@@ -257,7 +257,7 @@ class TtsManager(
                 withTimeout(7_000) {
                     synthesizeWithSarvamBulbul(cleanText, languageCode)
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 null
             }
 
@@ -279,7 +279,7 @@ class TtsManager(
 
             try {
                 withTimeout(25_000) { deferred.await() }
-            } catch (e: TimeoutCancellationException) {
+            } catch (_: TimeoutCancellationException) {
                 pendingCompletions.remove(id)
             }
         }
