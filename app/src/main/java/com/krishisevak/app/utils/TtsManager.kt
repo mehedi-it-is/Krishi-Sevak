@@ -136,7 +136,7 @@ class TtsManager(
     }
 
     /**
-     * Synthesize audio file with Sarvam AI bulbul:v3
+     * Synthesize audio file with Sarvam AI bulbul:v3 (Speaker: ritu)
      */
     private suspend fun synthesizeWithSarvamBulbul(text: String, languageCode: String): File? = withContext(Dispatchers.IO) {
         val api = sarvamApi ?: return@withContext null
@@ -150,6 +150,7 @@ class TtsManager(
             val req = SarvamTtsRequest(
                 inputs = listOf(clean),
                 targetLanguageCode = sarvamLang,
+                speaker = "ritu",
                 model = "bulbul:v3"
             )
             val response = api.textToSpeech(sarvamApiKey, req)
@@ -161,13 +162,16 @@ class TtsManager(
                 return@withContext tempFile
             }
         } catch (e: Exception) {
-            Log.w(TAG, "Sarvam bulbul:v3 TTS failed: ${e.message}")
+            Log.w(TAG, "Sarvam bulbul:v3 (speaker: ritu) TTS failed: ${e.message}")
         }
         return@withContext null
     }
 
     /**
-     * Speaks aloud using Sarvam AI bulbul:v3 with instant fallback to Edge Neural and Local TTS.
+     * Speaks aloud using Sarvam AI bulbul:v3 (speaker: ritu).
+     * 1. Checks if internet is available. If offline -> immediately uses native Android TTS.
+     * 2. If online -> synthesizes with bulbul:v3 without delay.
+     * 3. If online synthesis fails -> immediately falls back to native Android TTS.
      */
     fun speak(id: String, text: String, languageCode: String) {
         if (_currentlySpeakingId.value == id) {
@@ -185,15 +189,16 @@ class TtsManager(
                 return@launch
             }
 
+            // Step 1: Check Internet connection
             if (!isNetworkAvailable()) {
-                Log.d(TAG, "No internet connection — falling back to local TTS for id=$id")
+                Log.d(TAG, "No internet connection — immediately starting native Android TTS for id=$id")
                 speakWithLocalEngine(id, cleanText, languageCode)
                 return@launch
             }
 
-            // Step 1: Try Sarvam AI bulbul:v3
+            // Step 2: Synthesize with Sarvam AI bulbul:v3 (speaker: ritu)
             val sarvamAudioFile = try {
-                withTimeout(15_000) {
+                withTimeout(7_000) {
                     synthesizeWithSarvamBulbul(cleanText, languageCode)
                 }
             } catch (e: Exception) {
@@ -201,7 +206,7 @@ class TtsManager(
             }
 
             if (sarvamAudioFile != null && isActive) {
-                Log.d(TAG, "Sarvam bulbul:v3 TTS SUCCESS — playing audio for id=$id")
+                Log.d(TAG, "Sarvam bulbul:v3 (ritu) SUCCESS — playing audio for id=$id in lang=$languageCode")
                 edgeTtsClient.playAudio(
                     file = sarvamAudioFile,
                     onStart = { _currentlySpeakingId.value = id },
@@ -214,53 +219,42 @@ class TtsManager(
                 return@launch
             }
 
-            // Step 2: Fallback to Edge Neural TTS
-            val edgeAudioFile = try {
-                withTimeout(15_000) {
-                    edgeTtsClient.synthesizeToAudioFile(cleanText, languageCode)
-                }
-            } catch (e: Exception) {
-                null
-            }
-
-            if (edgeAudioFile != null && isActive) {
-                Log.d(TAG, "Edge TTS SUCCESS — playing audio for id=$id")
-                edgeTtsClient.playAudio(
-                    file = edgeAudioFile,
-                    onStart = { _currentlySpeakingId.value = id },
-                    onCompletion = {
-                        if (_currentlySpeakingId.value == id) {
-                            _currentlySpeakingId.value = null
-                        }
-                    }
-                )
-            } else if (isActive) {
-                // Step 3: Fallback to local on-device TTS
-                Log.d(TAG, "Falling back to local TTS for id=$id, lang=$languageCode")
+            // Step 3: Fallback to native Android local TTS if online synthesis was unavailable
+            if (isActive) {
+                Log.d(TAG, "Bulbul v3 unavailable — falling back to native Android TTS for id=$id, lang=$languageCode")
                 speakWithLocalEngine(id, cleanText, languageCode)
             }
         }
     }
 
+    /**
+     * Sequential/blocking speech for tutorial or onboarding.
+     */
     suspend fun speakAndWait(id: String, text: String, languageCode: String) {
         speakMutex.withLock {
             val deferred = CompletableDeferred<Unit>()
             pendingCompletions[id] = deferred
 
             val cleanText = cleanTextForSpeech(text)
+            if (cleanText.isBlank()) {
+                deferred.complete(Unit)
+                return@withLock
+            }
 
+            // Step 1: Check Internet connection
             if (!isNetworkAvailable()) {
                 speakWithLocalEngine(id, cleanText, languageCode)
                 try {
-                    withTimeout(30000) { deferred.await() }
+                    withTimeout(20_000) { deferred.await() }
                 } catch (e: TimeoutCancellationException) {
                     pendingCompletions.remove(id)
                 }
                 return@withLock
             }
 
+            // Step 2: Try Sarvam AI bulbul:v3 (speaker: ritu)
             val sarvamAudioFile = try {
-                withTimeout(15_000) {
+                withTimeout(7_000) {
                     synthesizeWithSarvamBulbul(cleanText, languageCode)
                 }
             } catch (e: Exception) {
@@ -279,32 +273,12 @@ class TtsManager(
                     }
                 )
             } else {
-                val edgeAudioFile = try {
-                    withTimeout(15_000) {
-                        edgeTtsClient.synthesizeToAudioFile(cleanText, languageCode)
-                    }
-                } catch (e: Exception) {
-                    null
-                }
-
-                if (edgeAudioFile != null) {
-                    edgeTtsClient.playAudio(
-                        file = edgeAudioFile,
-                        onStart = { _currentlySpeakingId.value = id },
-                        onCompletion = {
-                            if (_currentlySpeakingId.value == id) {
-                                _currentlySpeakingId.value = null
-                            }
-                            pendingCompletions.remove(id)?.complete(Unit)
-                        }
-                    )
-                } else {
-                    speakWithLocalEngine(id, cleanText, languageCode)
-                }
+                // Step 3: Fallback to native Android local TTS
+                speakWithLocalEngine(id, cleanText, languageCode)
             }
 
             try {
-                withTimeout(30000) { deferred.await() }
+                withTimeout(25_000) { deferred.await() }
             } catch (e: TimeoutCancellationException) {
                 pendingCompletions.remove(id)
             }

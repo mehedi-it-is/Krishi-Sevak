@@ -37,7 +37,7 @@ data class SarvamSttResponse(
 data class SarvamTtsRequest(
     @SerializedName("inputs") val inputs: List<String>,
     @SerializedName("target_language_code") val targetLanguageCode: String = "hi-IN",
-    @SerializedName("speaker") val speaker: String? = "aditya",
+    @SerializedName("speaker") val speaker: String? = "ritu",
     @SerializedName("pitch") val pitch: Double? = 0.0,
     @SerializedName("pace") val pace: Double? = 1.0,
     @SerializedName("loudness") val loudness: Double? = 1.2,
