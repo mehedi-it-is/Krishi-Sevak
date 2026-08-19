@@ -25,10 +25,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
-import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -36,9 +34,9 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -56,13 +54,11 @@ import com.krishisevak.app.data.engine.AgroWeatherAdvisoryEngine
 import com.krishisevak.app.data.engine.AgroWeatherInput
 import com.krishisevak.app.data.engine.MandiTranslations
 import com.krishisevak.app.data.remote.mandi.MandiRecord
-import com.krishisevak.app.ui.components.AudioWaveformVisualizer
 import com.krishisevak.app.ui.theme.*
 import com.krishisevak.app.utils.AppStrings
 import com.krishisevak.app.utils.LocationHelper
 import com.krishisevak.app.utils.UserLocationDetails
 import kotlinx.coroutines.launch
-import coil.compose.AsyncImage
 
 enum class DashboardTab {
     MANDI, WEATHER, SCHEMES, ALERTS
@@ -73,6 +69,7 @@ enum class DashboardTab {
 fun DashboardScreen(
     viewModel: DashboardViewModel,
     schemesViewModel: com.krishisevak.app.ui.schemes.SchemesViewModel,
+    initialOpenTour: Boolean = false,
     onNavigateToChat: (chatId: String?, initialText: String?, initialImageUri: String?) -> Unit,
     onNavigateToSchemes: () -> Unit,
     onNavigateToSoil: () -> Unit,
@@ -106,7 +103,7 @@ fun DashboardScreen(
     var showLocationModal by remember { mutableStateOf(false) }
     var showLogoutConfirm by remember { mutableStateOf(false) }
     var showAttachMenu by remember { mutableStateOf(false) }
-    var showAppTutorial by remember { mutableStateOf(false) }
+    var showAppTutorial by rememberSaveable { mutableStateOf(initialOpenTour) }
     var selectedImageUri by remember { mutableStateOf<android.net.Uri?>(null) }
 
     var tempNameInput by remember { mutableStateOf(userName) }

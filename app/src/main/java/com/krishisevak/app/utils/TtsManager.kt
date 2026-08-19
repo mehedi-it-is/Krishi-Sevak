@@ -105,18 +105,19 @@ class TtsManager(
     }
 
     private fun resolveLocale(languageCode: String): Locale {
-        return when (languageCode.lowercase()) {
-            "hi" -> Locale("hi", "IN")
-            "bn" -> Locale("bn", "IN")
-            "kn" -> Locale("kn", "IN")
-            "ml" -> Locale("ml", "IN")
-            "mr" -> Locale("mr", "IN")
-            "or" -> Locale("or", "IN")
-            "pa" -> Locale("pa", "IN")
-            "ta" -> Locale("ta", "IN")
-            "te" -> Locale("te", "IN")
-            "gu" -> Locale("gu", "IN")
-            else -> Locale.ENGLISH
+        return when (languageCode.lowercase().trim()) {
+            "hi", "hindi" -> Locale("hi", "IN")
+            "bn", "bengali" -> Locale("bn", "IN")
+            "kn", "kannada" -> Locale("kn", "IN")
+            "ml", "malayalam" -> Locale("ml", "IN")
+            "mr", "marathi" -> Locale("mr", "IN")
+            "or", "od", "odia" -> Locale("or", "IN")
+            "pa", "punjabi" -> Locale("pa", "IN")
+            "ta", "tamil" -> Locale("ta", "IN")
+            "te", "telugu" -> Locale("te", "IN")
+            "gu", "gujarati" -> Locale("gu", "IN")
+            "en", "english" -> Locale("en", "IN") // Indian English
+            else -> Locale("en", "IN")
         }
     }
 
@@ -144,36 +145,58 @@ class TtsManager(
 
         try {
             val sarvamLang = mapToSarvamLanguage(languageCode)
-            val clean = cleanTextForSpeech(text).take(500)
+            val clean = cleanTextForSpeech(text)
             if (clean.isBlank()) return@withContext null
 
+            // Split text into chunks <= 450 characters (Sarvam Bulbul input limit per string)
+            val chunks = mutableListOf<String>()
+            if (clean.length <= 450) {
+                chunks.add(clean)
+            } else {
+                val sentences = clean.split(Regex("(?<=[.!?।\n])\\s+"))
+                var current = StringBuilder()
+                for (sentence in sentences) {
+                    if (current.length + sentence.length + 1 <= 450) {
+                        if (current.isNotEmpty()) current.append(" ")
+                        current.append(sentence)
+                    } else {
+                        if (current.isNotEmpty()) chunks.add(current.toString())
+                        current = StringBuilder(sentence.take(450))
+                    }
+                }
+                if (current.isNotEmpty()) chunks.add(current.toString())
+            }
+
             val req = SarvamTtsRequest(
-                inputs = listOf(clean),
+                inputs = chunks.take(5), // up to ~2250 characters
                 targetLanguageCode = sarvamLang,
                 speaker = "ritu",
                 model = "bulbul:v3"
             )
+            Log.d(TAG, "Requesting Sarvam Bulbul:v3 TTS for lang=$sarvamLang, chunksCount=${chunks.size}")
             val response = api.textToSpeech(sarvamApiKey, req)
             val base64Audio = response.audios?.firstOrNull()
             if (!base64Audio.isNullOrBlank()) {
                 val audioBytes = Base64.decode(base64Audio, Base64.DEFAULT)
                 val tempFile = File(context.cacheDir, "sarvam_bulbul_${UUID.randomUUID()}.wav")
                 FileOutputStream(tempFile).use { it.write(audioBytes) }
+                Log.d(TAG, "Sarvam Bulbul:v3 audio saved: ${tempFile.name}, size=${audioBytes.size} bytes")
                 return@withContext tempFile
+            } else {
+                Log.w(TAG, "Sarvam Bulbul:v3 returned null or empty audio list")
             }
         } catch (e: Exception) {
-            Log.w(TAG, "Sarvam bulbul:v3 (speaker: ritu) TTS failed: ${e.message}")
+            Log.e(TAG, "Sarvam bulbul:v3 (speaker: ritu) TTS failed: ${e.message}", e)
         }
         return@withContext null
     }
 
     /**
-     * Speaks aloud using Sarvam AI bulbul:v3 (speaker: ritu).
-     * 1. Checks if internet is available. If offline -> immediately uses native Android TTS.
-     * 2. If online -> synthesizes with bulbul:v3 without delay.
-     * 3. If online synthesis fails -> immediately falls back to native Android TTS.
+     * Speaks aloud.
+     * By default, uses native Android TTS engine directly (for all app features).
+     * If useSarvamBulbul == true (used exclusively by AI Chatbot), synthesizes with Sarvam Bulbul:v3 with fallback to native TTS.
      */
-    fun speak(id: String, text: String, languageCode: String) {
+    fun speak(id: String, text: String, languageCode: String, useSarvamBulbul: Boolean = false) {
         if (_currentlySpeakingId.value == id) {
             stop()
             return
@@ -189,19 +212,20 @@ class TtsManager(
                 return@launch
             }
 
-            // Step 1: Check Internet connection
-            if (!isNetworkAvailable()) {
-                Log.d(TAG, "No internet connection — immediately starting native Android TTS for id=$id")
+            // If not requesting Sarvam Bulbul (or if offline), use Android native local TTS directly
+            if (!useSarvamBulbul || !isNetworkAvailable()) {
+                Log.d(TAG, "Using native Android TTS for id=$id in lang=$languageCode")
                 speakWithLocalEngine(id, cleanText, languageCode)
                 return@launch
             }
 
-            // Step 2: Synthesize with Sarvam AI bulbul:v3 (speaker: ritu)
+            // Synthesize with Sarvam AI bulbul:v3 (speaker: ritu) for AI Chatbot
             val sarvamAudioFile = try {
-                withTimeout(7_000) {
+                withTimeout(15_000) {
                     synthesizeWithSarvamBulbul(cleanText, languageCode)
                 }
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                Log.w(TAG, "Sarvam Bulbul synthesis timed out or failed: ${e.message}")
                 null
             }
 
@@ -219,7 +243,7 @@ class TtsManager(
                 return@launch
             }
 
-            // Step 3: Fallback to native Android local TTS if online synthesis was unavailable
+            // Fallback to native Android local TTS if online synthesis was unavailable
             if (isActive) {
                 Log.d(TAG, "Bulbul v3 unavailable — falling back to native Android TTS for id=$id, lang=$languageCode")
                 speakWithLocalEngine(id, cleanText, languageCode)
@@ -228,9 +252,9 @@ class TtsManager(
     }
 
     /**
-     * Sequential/blocking speech for tutorial or onboarding.
+     * Sequential/blocking speech.
      */
-    suspend fun speakAndWait(id: String, text: String, languageCode: String) {
+    suspend fun speakAndWait(id: String, text: String, languageCode: String, useSarvamBulbul: Boolean = false) {
         speakMutex.withLock {
             val deferred = CompletableDeferred<Unit>()
             pendingCompletions[id] = deferred
@@ -241,8 +265,8 @@ class TtsManager(
                 return@withLock
             }
 
-            // Step 1: Check Internet connection
-            if (!isNetworkAvailable()) {
+            // If not requesting Sarvam Bulbul (or offline), use Android native local TTS directly
+            if (!useSarvamBulbul || !isNetworkAvailable()) {
                 speakWithLocalEngine(id, cleanText, languageCode)
                 try {
                     withTimeout(20_000) { deferred.await() }
@@ -252,12 +276,13 @@ class TtsManager(
                 return@withLock
             }
 
-            // Step 2: Try Sarvam AI bulbul:v3 (speaker: ritu)
+            // Try Sarvam AI bulbul:v3 (speaker: ritu)
             val sarvamAudioFile = try {
-                withTimeout(7_000) {
+                withTimeout(15_000) {
                     synthesizeWithSarvamBulbul(cleanText, languageCode)
                 }
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                Log.w(TAG, "Sarvam Bulbul synthesis timed out or failed in speakAndWait: ${e.message}")
                 null
             }
 
@@ -273,7 +298,7 @@ class TtsManager(
                     }
                 )
             } else {
-                // Step 3: Fallback to native Android local TTS
+                // Fallback to native Android local TTS
                 speakWithLocalEngine(id, cleanText, languageCode)
             }
 
@@ -294,8 +319,25 @@ class TtsManager(
         val locale = resolveLocale(languageCode)
         val result = localTts?.setLanguage(locale)
         if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-            Log.w(TAG, "Local TTS language $languageCode not supported, falling back to English")
-            localTts?.language = Locale.ENGLISH
+            Log.w(TAG, "Local TTS language $languageCode not supported, falling back to Indian English (en-IN)")
+            val fallbackLocale = Locale("en", "IN")
+            if (localTts?.setLanguage(fallbackLocale) == TextToSpeech.LANG_NOT_SUPPORTED) {
+                localTts?.language = Locale.ENGLISH
+            }
+        }
+
+        // Prefer Indian English voice when speaking English
+        if (locale.language == "en") {
+            try {
+                val inVoice = localTts?.voices?.find {
+                    it.locale.language == "en" && it.locale.country.equals("IN", ignoreCase = true)
+                }
+                if (inVoice != null) {
+                    localTts?.voice = inVoice
+                }
+            } catch (_: Exception) {
+                // Ignore voice selection failure on older Android engines
+            }
         }
 
         _currentlySpeakingId.value = id

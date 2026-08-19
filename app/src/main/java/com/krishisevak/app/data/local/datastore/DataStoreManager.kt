@@ -36,6 +36,9 @@ class DataStoreManager(private val context: Context) {
         
         val LAST_SCHEMES_FETCH_TIME = androidx.datastore.preferences.core.longPreferencesKey("last_schemes_fetch_time")
 
+        val HAS_COMPLETED_PERMISSIONS_INTRO = booleanPreferencesKey("has_completed_permissions_intro")
+        val HAS_SEEN_TUTORIAL = booleanPreferencesKey("has_seen_tutorial")
+
         // AI Daily Rate Limit preferences
         val SARVAM_USAGE_DATE = stringPreferencesKey("sarvam_usage_date")
         val SARVAM_USAGE_COUNT = intPreferencesKey("sarvam_usage_count")
@@ -86,6 +89,26 @@ class DataStoreManager(private val context: Context) {
 
     val isDarkModeFlow: Flow<Boolean> = context.dataStore.data.map { prefs ->
         prefs[IS_DARK_MODE] ?: false
+    }
+
+    val hasCompletedPermissionsIntroFlow: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[HAS_COMPLETED_PERMISSIONS_INTRO] ?: false
+    }
+
+    val hasSeenTutorialFlow: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[HAS_SEEN_TUTORIAL] ?: false
+    }
+
+    suspend fun setCompletedPermissionsIntro(completed: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[HAS_COMPLETED_PERMISSIONS_INTRO] = completed
+        }
+    }
+
+    suspend fun setHasSeenTutorial(seen: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[HAS_SEEN_TUTORIAL] = seen
+        }
     }
 
     val locationCityFlow: Flow<String> = context.dataStore.data.map { prefs ->

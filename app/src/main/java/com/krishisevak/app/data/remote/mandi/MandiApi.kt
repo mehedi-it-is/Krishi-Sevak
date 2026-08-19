@@ -105,23 +105,3 @@ interface MandiApi {
     ): MandiResponse
 }
 
-/**
- * Mandi provider delivering verified authentic APMC market data by region.
- */
-object MandiMockProvider {
-    fun getLocalMandiPrices(
-        cityName: String = "Nashik",
-        districtName: String = "Nashik",
-        stateName: String = "Maharashtra"
-    ): List<MandiRecord> {
-        val loc = com.krishisevak.app.utils.UserLocationDetails(
-            cityName = cityName,
-            districtName = districtName,
-            stateName = stateName,
-            latitude = 20.0,
-            longitude = 74.0
-        )
-        return RealMandiDirectory.getMandiDataForLocation(loc).second
-    }
-}
-

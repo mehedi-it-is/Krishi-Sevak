@@ -6,10 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.krishisevak.app.data.local.datastore.DataStoreManager
 import com.krishisevak.app.data.local.db.ChatEntity
 import com.krishisevak.app.data.remote.mandi.MandiApi
-import com.krishisevak.app.data.remote.mandi.MandiMockProvider
 import com.krishisevak.app.data.remote.mandi.MandiRecord
 import com.krishisevak.app.data.remote.mandi.RealMandiDirectory
-import com.krishisevak.app.data.remote.weather.WeatherApi
 import com.krishisevak.app.data.repository.ChatRepository
 import com.krishisevak.app.ui.onboarding.LanguageOption
 import com.krishisevak.app.utils.AppStrings
@@ -26,8 +24,7 @@ class DashboardViewModel(
     private val dataStoreManager: DataStoreManager,
     private val locationHelper: LocationHelper,
     val ttsManager: TtsManager,
-    private val mandiApi: MandiApi,
-    private val weatherApi: WeatherApi? = null
+    private val mandiApi: MandiApi
 ) : ViewModel() {
 
     companion object {

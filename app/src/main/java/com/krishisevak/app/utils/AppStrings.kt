@@ -243,6 +243,20 @@ object AppStrings {
             "onboarding_lang_prompt" to "Choose your preferred language",
             "onboarding_start_btn" to "Get Started Now",
 
+            // Permissions Intro Screen
+            "perm_intro_title" to "Permissions for Smart Farming",
+            "perm_intro_subtitle" to "Krishi Sevak needs 3 permissions to protect your crops, show accurate mandi prices, and enable voice assistance.",
+            "perm_loc_title" to "📍 GPS Location",
+            "perm_loc_desc" to "Required to find your nearest APMC Mandi commodity prices and deliver hyper-local 7-day weather forecasts & spray timing.",
+            "perm_cam_title" to "📷 Camera & Photos",
+            "perm_cam_desc" to "Required for AI Crop Doctor to scan diseased crop leaves and diagnose fungal, bacterial or pest infections instantly.",
+            "perm_mic_title" to "🎙️ Microphone / Audio",
+            "perm_mic_desc" to "Required for voice advisory chat so you can speak directly in your regional language and receive spoken AI recommendations.",
+            "perm_how_to_allow_tip" to "💡 Tip: On the next popup, tap 'While using the app' to enable smooth functioning.",
+            "perm_continue_btn" to "Continue & Allow Permissions",
+            "perm_audio_guide" to "Listen to Permission Guide",
+            "perm_tts_speech" to "Welcome! Krishi Sevak needs three essential permissions: First, Location to give you your nearest Mandi prices and local weather. Second, Camera to scan diseased plant leaves with Crop Doctor. Third, Microphone to talk with your AI agricultural assistant in your own language. Please tap Continue to allow them.",
+
             // Daily AI Quota Limiter
             "daily_query_limit_exhausted" to "You have used your daily query limit.",
             "ai_quota_remaining" to "⚡ %d/2 AI queries left today",
@@ -477,6 +491,20 @@ object AppStrings {
             "onboarding_lang_prompt" to "अपनी पसंदीदा भाषा चुनें",
             "onboarding_start_btn" to "अब शुरू करें",
 
+            // Permissions Intro Screen
+            "perm_intro_title" to "स्मार्ट खेती के लिए आवश्यक अनुमतियाँ",
+            "perm_intro_subtitle" to "कृषि सेवक को आपकी फसलों की सुरक्षा, सटीक मंडी भाव और बोलकर सलाह देने के लिए 3 अनुमतियों की आवश्यकता है।",
+            "perm_loc_title" to "📍 जीपीएस स्थान (Location)",
+            "perm_loc_desc" to "निकटतम APMC मंडी के ताज़ा भाव, 7-दिवसीय स्थानीय मौसम और कीटनाशक छिड़काव के सही समय के लिए आवश्यक है।",
+            "perm_cam_title" to "📷 कैमरा और फोटो (Camera)",
+            "perm_cam_desc" to "एआई फसल डॉक्टर द्वारा रोगग्रस्त पत्तों को स्कैन कर तुरंत बीमारी की पहचान और उपचार पाने के लिए आवश्यक है।",
+            "perm_mic_title" to "🎙️ माइक्रोफ़ोन (माइक)",
+            "perm_mic_desc" to "अपनी मातृभाषा में बोलकर खेती के सवाल पूछने और बोलकर जवाब सुनने के लिए आवश्यक है।",
+            "perm_how_to_allow_tip" to "💡 सुझाव: आने वाले पॉप-अप में 'ऐप का उपयोग करते समय' (While using the app) चुनें।",
+            "perm_continue_btn" to "आगे बढ़ें और अनुमति दें",
+            "perm_audio_guide" to "अनुमति मार्गदर्शिका सुनें",
+            "perm_tts_speech" to "नमस्ते! कृषि सेवक को आपके खेत के लिए तीन अनुमतियों की आवश्यकता है: पहला, निकटतम मंडी भाव और मौसम के लिए स्थान। दूसरा, पत्तों की बीमारी जांचने के लिए कैमरा। और तीसरा, अपनी भाषा में बोलकर सलाह पाने के लिए माइक। कृपया आगे बढ़ें बटन दबाकर अनुमति दें।",
+
             // Daily AI Quota Limiter
             "daily_query_limit_exhausted" to "आपने अपनी दैनिक प्रश्न सीमा समाप्त कर ली है।",
             "ai_quota_remaining" to "⚡ आज %d/2 AI प्रश्न शेष",
@@ -678,7 +706,21 @@ object AppStrings {
             "onboarding_name_prompt" to "আপনার নাম কী?",
             "onboarding_name_hint" to "আপনার সম্পূর্ণ নাম লিখুন",
             "onboarding_lang_prompt" to "আপনার পছন্দের ভাষা নির্বাচন করুন",
-            "onboarding_start_btn" to "এখনই শুরু করুন"
+            "onboarding_start_btn" to "এখনই শুরু করুন",
+
+            // Permissions Intro Screen
+            "perm_intro_title" to "স্মার্ট কৃষিকাজের জন্য প্রয়োজনীয় অনুমতি",
+            "perm_intro_subtitle" to "আপনার ফসলের সুরক্ষা, সঠিক মান্ডির দর এবং মুখে বলে পরামর্শ পাওয়ার জন্য কৃষি সেবকের ৩টি অনুমতি প্রয়োজন।",
+            "perm_loc_title" to "📍 জিপিএস অবস্থান (Location)",
+            "perm_loc_desc" to "নিকটবর্তী APMC মান্ডির দর, ৭ দিনের স্থানীয় আবহাওয়া এবং কীটনাশক স্প্রে করার সঠিক সময়ের জন্য আবশ্যক।",
+            "perm_cam_title" to "📷 ক্যামেরা ও ছবি (Camera)",
+            "perm_cam_desc" to "এআই ফসল ডাক্তার দিয়ে রোগাক্রান্ত পাতা স্ক্যান করে তাৎক্ষণিক রোগ নির্ণয় ও প্রতিকার পেতে আবশ্যক।",
+            "perm_mic_title" to "🎙️ মাইক্রোফোন (কথা বলা)",
+            "perm_mic_desc" to "আপনার মাতৃভাষায় কথা বলে চাষের পরামর্শ পেতে এবং মুখে বলা উত্তর শুনতে আবশ্যক।",
+            "perm_how_to_allow_tip" to "💡 পরামর্শ: পরের পপ-আপে 'While using the app' নির্বাচন করুন।",
+            "perm_continue_btn" to "এগিয়ে যান ও অনুমতি দিন",
+            "perm_audio_guide" to "অনুমতি সহায়িকা শুনুন",
+            "perm_tts_speech" to "স্বাগতম! কৃষি সেবকে ৩টি জরুরি অনুমতি প্রয়োজন: প্রথমত, মান্ডির দর ও আবহাওয়ার জন্য লোকেশন। দ্বিতীয়ত, পাতার রোগ নির্ণয়ের জন্য ক্যামেরা। এবং তৃতীয়ত, বাংলায় কথা বলে পরামর্শ পেতে মাইক্রোফোন। অনুগ্রহ করে এগিয়ে যান বাটনে ট্যাপ করে অনুমতি দিন।",
         ),
 
         // =========================================================================
@@ -871,7 +913,21 @@ object AppStrings {
             "onboarding_name_prompt" to "आपले शुभ नाव काय आहे?",
             "onboarding_name_hint" to "आपले पूर्ण नाव प्रविष्ट करा",
             "onboarding_lang_prompt" to "आपली पसंतीची भाषा निवडा",
-            "onboarding_start_btn" to "आता सुरू करा"
+            "onboarding_start_btn" to "आता सुरू करा",
+
+            // Permissions Intro Screen
+            "perm_intro_title" to "स्मार्ट शेतीसाठी आवश्यक परवानग्या",
+            "perm_intro_subtitle" to "पिकांचे रक्षण, अचूक बाजार भाव आणि आवाजी सल्ल्यासाठी कृषी सेवकला ३ परवानग्या आवश्यक आहेत.",
+            "perm_loc_title" to "📍 स्थान (Location)",
+            "perm_loc_desc" to "जवळच्या APMC बाजार समितीचे दर, ७ दिवसांचा स्थानिक हवामान अंदाज आणि फवारणीच्या वेळेसाठी.",
+            "perm_cam_title" to "📷 कॅमेरा (Camera)",
+            "perm_cam_desc" to "पीक डॉक्टरद्वारे आजारी पानांचे फोटो काढून रोगाचे अचूक निदान व उपाय मिळवण्यासाठी.",
+            "perm_mic_title" to "🎙️ मायक्रोफोन (Microphone)",
+            "perm_mic_desc" to "आपल्या मराठी भाषेत बोलून शेतीचे प्रश्न विचारण्यासाठी आणि आवाजात उत्तर ऐकण्यासाठी.",
+            "perm_how_to_allow_tip" to "💡 टीप: पुढील पॉप-अपवर 'While using the app' निवडा.",
+            "perm_continue_btn" to "पुढे जा आणि परवानग्या द्या",
+            "perm_audio_guide" to "परवानगी मार्गदर्शक ऐका",
+            "perm_tts_speech" to "नमस्कार! कृषी सेवकला तुमच्या शेतासाठी ३ परवानग्या हव्या आहेत: पहिली, बाजार भाव आणि हवामानासाठी लोकेशन. दुसरी, पानांचे रोग तपासण्यासाठी कॅमेरा. आणि तिसरी, बोलून सल्ला घेण्यासाठी माइक. कृपया पुढे जा बटणावर टॅप करून परवानगी द्या.",
         ),
 
         // =========================================================================
@@ -1064,7 +1120,21 @@ object AppStrings {
             "onboarding_name_prompt" to "మీ శుభనామం ఏమిటి?",
             "onboarding_name_hint" to "మీ పూర్తి పేరును నమోదు చేయండి",
             "onboarding_lang_prompt" to "మీకు నచ్చిన భాషను ఎంచుకోండి",
-            "onboarding_start_btn" to "ప్రారంభించండి"
+            "onboarding_start_btn" to "ప్రారంభించండి",
+
+            // Permissions Intro Screen
+            "perm_intro_title" to "స్మార్ట్ వ్యవసాయం కోసం అవసరమైన అనుమతులు",
+            "perm_intro_subtitle" to "మీ పంటల రక్షణ, ఖచ్చితమైన మార్కెట్ ధరలు మరియు వాయిస్ సలహాల కోసం 3 అనుమతులు అవసరం.",
+            "perm_loc_title" to "📍 లొకేషన్ (Location)",
+            "perm_loc_desc" to "సమీప APMC మార్కెట్ ధరలు, 7 రోజుల స్థానిక వాతావరణం మరియు పిచికారీ సమయం కోసం.",
+            "perm_cam_title" to "📷 కెమెరా (Camera)",
+            "perm_cam_desc" to "ఏఐ క్రాప్ డాక్టర్ ద్వారా తెగులు సోకిన ఆకులను స్కాన్ చేసి చికిత్స పొందడానికి.",
+            "perm_mic_title" to "🎙️ మైక్రోఫోన్ (Microphone)",
+            "perm_mic_desc" to "తెలుగులో మాట్లాడి వ్యవసాయ సలహాలు పొందడానికి మరియు వాయిస్ సమాధానాలు వినడానికి.",
+            "perm_how_to_allow_tip" to "💡 చిట్కా: తదుపరి పాప్‌అప్‌లో 'While using the app' ఎంచుకోండి.",
+            "perm_continue_btn" to "కొనసాగించండి & అనుమతులు ఇవ్వండి",
+            "perm_audio_guide" to "అనుమతుల గైడ్ వినండి",
+            "perm_tts_speech" to "నమస్కారం! కృషి సేవక్‌కు మూడు అనుమతులు అవసరం: మొదటిది మార్కెట్ ధరలు మరియు వాతావరణం కోసం లొకేషన్, రెండవది ఆకుల వ్యాధులను గుర్తించడానికి కెమెరా, మూడవది మాట్లాడి సలహాలు పొందడానికి మైక్. దయచేసి కొనసాగించండి బటన్ నొక్కండి.",
         ),
 
         // =========================================================================
@@ -1257,7 +1327,21 @@ object AppStrings {
             "onboarding_name_prompt" to "உங்கள் பெயர் என்ன?",
             "onboarding_name_hint" to "உங்கள் முழு பெயரை உள்ளிடவும்",
             "onboarding_lang_prompt" to "உங்கள் விருப்ப மொழியைத் தேர்ந்தெடுக்கவும்",
-            "onboarding_start_btn" to "தொடங்குங்கள்"
+            "onboarding_start_btn" to "தொடங்குங்கள்",
+
+            // Permissions Intro Screen
+            "perm_intro_title" to "ஸ்மார்ட் விவசாயத்திற்கான அத்தியாவசிய அனுமதிகள்",
+            "perm_intro_subtitle" to "பயிர் பாதுகாப்பு, துல்லியமான சந்தை விலை மற்றும் குரல் உதவிக்கு 3 அனுமதிகள் தேவை.",
+            "perm_loc_title" to "📍 இருப்பிடம் (Location)",
+            "perm_loc_desc" to "அருகிலுள்ள மண்டி விலை, 7 நாள் வானிலை மற்றும் தெளிப்பு நேரம் அறிய.",
+            "perm_cam_title" to "📷 கேமரா (Camera)",
+            "perm_cam_desc" to "பயிர் மருத்துவர் மூலம் நோயுற்ற இலைகளை ஸ்கேன் செய்து உடனடியாக தீர்வு பெற.",
+            "perm_mic_title" to "🎙️ மைக்ரோஃபோன் (Microphone)",
+            "perm_mic_desc" to "தமிழில் பேசி விவசாய ஆலோசனைகளைப் பெறவும் குரல் வழியே கேட்கவும்.",
+            "perm_how_to_allow_tip" to "💡 குறிப்பு: அடுத்த திரையில் 'While using the app' என்பதைத் தேர்ந்தெடுக்கவும்.",
+            "perm_continue_btn" to "தொடரவும் & அனுமதியளிக்கவும்",
+            "perm_audio_guide" to "அனுமதி வழிகாட்டியை கேளுங்கள்",
+            "perm_tts_speech" to "வணக்கம்! கிருஷி சேவக்கிற்கு மூன்று அனுமதிகள் தேவை: முதலாவது மண்டி விலை மற்றும் வானிலைக்கு இருப்பிடம், இரண்டாவது இலை நோய்களைக் கண்டறிய கேமரா, மூன்றாவது தமிழில் பேசி ஆலோசனை பெற மைக். தொடரவும் பொத்தானைத் தட்டவும்.",
         ),
 
         // =========================================================================
@@ -1450,7 +1534,21 @@ object AppStrings {
             "onboarding_name_prompt" to "ನಿಮ್ಮ ಹೆಸರೇನು?",
             "onboarding_name_hint" to "ನಿಮ್ಮ ಪೂರ್ಣ ಹೆಸರನ್ನು ನಮೂದಿಸಿ",
             "onboarding_lang_prompt" to "ನಿಮ್ಮ ಮೆಚ್ಚಿನ ಭಾಷೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ",
-            "onboarding_start_btn" to "ಈಗಲೇ ಪ್ರಾರಂಭಿಸಿ"
+            "onboarding_start_btn" to "ಈಗಲೇ ಪ್ರಾರಂಭಿಸಿ",
+
+            // Permissions Intro Screen
+            "perm_intro_title" to "ಸ್ಮಾರ್ಟ್ ಕೃಷಿಗಾಗಿ ಅಗತ್ಯವಿರುವ ಅನುಮತಿಗಳು",
+            "perm_intro_subtitle" to "ಬೆಳೆ ರಕ್ಷಣೆ, ನಿಖರ ಮಾರುಕಟ್ಟೆ ದರ ಮತ್ತು ಧ್ವನಿ ಸಲಹೆಗಾಗಿ 3 ಅನುಮತಿಗಳು ಅಗತ್ಯವಿದೆ.",
+            "perm_loc_title" to "📍 ಸ್ಥಳ (Location)",
+            "perm_loc_desc" to "ಹತ್ತಿರದ APMC ಮಂಡಿ ದರಗಳು, 7 ದಿನಗಳ ಹವಾಮಾನ ಮತ್ತು ಸಿಂಪಡಣೆ ಸಮಯಕ್ಕಾಗಿ.",
+            "perm_cam_title" to "📷 ಕ್ಯಾಮೆರಾ (Camera)",
+            "perm_cam_desc" to "ಕ್ರಾಪ್ ಡಾಕ್ಟರ್ ಮೂಲಕ ರೋಗಗ್ರಸ್ತ ಎಲೆಗಳನ್ನು ಸ್ಕ್ಯಾನ್ ಮಾಡಿ ತಕ್ಷಣ ಪರಿಹಾರ ಪಡೆಯಲು.",
+            "perm_mic_title" to "🎙️ ಮೈಕ್ರೊಫೋನ್ (Microphone)",
+            "perm_mic_desc" to "ಕನ್ನಡದಲ್ಲಿ ಮಾತನಾಡಿ ಕೃಷಿ ಸಲಹೆ ಪಡೆಯಲು ಮತ್ತು ಧ್ವನಿ ಉತ್ತರಗಳನ್ನು ಕೇಳಲು.",
+            "perm_how_to_allow_tip" to "💡 ಸಲಹೆ: ಮುಂದಿನ ಪಾಪ್-ಅಪ್‌ನಲ್ಲಿ 'While using the app' ಆಯ್ಕೆಮಾಡಿ.",
+            "perm_continue_btn" to "ಮುಂದುವರಿಯಿರಿ & ಅನುಮತಿ ನೀಡಿ",
+            "perm_audio_guide" to "ಅನುಮತಿ ಮಾರ್ಗದರ್ಶಿ ಆಲಿಸಿ",
+            "perm_tts_speech" to "ನಮಸ್ಕಾರ! ಕೃಷಿ ಸೇವಕ್‌ಗೆ ಮೂರು ಅನುಮತಿಗಳು ಬೇಕು: ಮೊದಲನೆಯದು ಮಾರುಕಟ್ಟೆ ದರ ಮತ್ತು ಹವಾಮಾನಕ್ಕಾಗಿ ಲೊಕೇಶನ್, ಎರಡನೆಯದು ಎಲೆ ರೋಗ ಪರೀಕ್ಷಿಸಲು ಕ್ಯಾಮೆರಾ, ಮೂರನೆಯದು ಮಾತನಾಡಿ ಸಲಹೆ ಪಡೆಯಲು ಮೈಕ್. ದಯವಿಟ್ಟು ಮುಂದುವರಿಯಿರಿ ಬಟನ್ ಒತ್ತಿ.",
         ),
 
         // =========================================================================
@@ -1643,7 +1741,21 @@ object AppStrings {
             "onboarding_name_prompt" to "താങ്കളുടെ പേരെന്താണ്?",
             "onboarding_name_hint" to "പൂർണ്ണമായ പേര് നൽകുക",
             "onboarding_lang_prompt" to "ഭാഷ തിരഞ്ഞെടുക്കുക",
-            "onboarding_start_btn" to "ആരംഭിക്കാം"
+            "onboarding_start_btn" to "ആരംഭിക്കാം",
+
+            // Permissions Intro Screen
+            "perm_intro_title" to "സ്മാർട്ട് കൃഷിക്കായി ആവശ്യമായ അനുമതികൾ",
+            "perm_intro_subtitle" to "വിള സംരക്ഷണം, ചന്ത വില, വോയ്‌സ് സഹായം എന്നിവയ്ക്കായി 3 അനുമതികൾ ആവശ്യമാണ്.",
+            "perm_loc_title" to "📍 ലൊക്കേഷൻ (Location)",
+            "perm_loc_desc" to "ഏറ്റവും അടുത്തുള്ള മണ്ഡി വില, 7 ദിവസത്തെ കാലാവസ്ഥ, കീടനാശിനി തളിക്കൽ സമയം എന്നിവയ്ക്ക്.",
+            "perm_cam_title" to "📷 ക്യാമറ (Camera)",
+            "perm_cam_desc" to "ക്രോപ്പ് ഡോക്ടർ വഴി രോഗം ബാധിച്ച ഇലകൾ സ്കാൻ ചെയ്ത് പരിഹാരം കണ്ടെത്താൻ.",
+            "perm_mic_title" to "🎙️ മൈക്രോഫോൺ (Microphone)",
+            "perm_mic_desc" to "മലയാളത്തിൽ സംസാരിച്ച് കൃഷി ഉപദേശം നേടാനും മറുപടി കേൾക്കാനും.",
+            "perm_how_to_allow_tip" to "💡 സൂചന: അടുത്ത പോപ്പ്-അപ്പിൽ 'While using the app' തിരഞ്ഞെടുക്കുക.",
+            "perm_continue_btn" to "തുടരുക & അനുമതി നൽകുക",
+            "perm_audio_guide" to "അനുമതി വിവരണം കേൾക്കുക",
+            "perm_tts_speech" to "നമസ്കാരം! കൃഷി സേവകിന് മൂന്ന് അനുമതികൾ ആവശ്യമാണ്: ആദ്യത്തേത് ചന്ത വിലയ്ക്കും കാലാവസ്ഥയ്ക്കും ലൊക്കേഷൻ, രണ്ടാമത്തേത് ഇലകളിലെ രോഗം കണ്ടെത്താൻ ക്യാമറ, മൂന്നാമത്തേത് സംസാരിച്ച് ഉപദേശം നേടാൻ മൈക്ക്. ദയവായി തുടരുക ബട്ടൺ ക്ലിക്ക് ചെയ്യുക.",
         ),
 
         // =========================================================================
@@ -1836,7 +1948,21 @@ object AppStrings {
             "onboarding_name_prompt" to "તમારું શુભ નામ શું છે?",
             "onboarding_name_hint" to "તમારું પૂરું નામ દાખલ કરો",
             "onboarding_lang_prompt" to "તમારી પસંદગીની ભાષા પસંદ કરો",
-            "onboarding_start_btn" to "હવે શરૂ કરો"
+            "onboarding_start_btn" to "હવે શરૂ કરો",
+
+            // Permissions Intro Screen
+            "perm_intro_title" to "સ્માર્ટ ખેતી માટે જરૂરી પરવાનગીઓ",
+            "perm_intro_subtitle" to "પાક સુરક્ષા, સચોટ બજાર ભાવ અને વૉઇસ સલાહ માટે 3 પરવાનગીઓ જરૂરી છે.",
+            "perm_loc_title" to "📍 લોકેશન (Location)",
+            "perm_loc_desc" to "નજીકના APMC માર્કેટના ભાવ, 7 દિવસની હવામાન આગાહી અને છંટકાવના સમય માટે.",
+            "perm_cam_title" to "📷 કેમેરો (Camera)",
+            "perm_cam_desc" to "ક્રોપ ડૉક્ટર દ્વારા રોગગ્રસ્ત પાંદડા સ્કેન કરી રોગની ઓળખ અને ઉપાય મેળવવા.",
+            "perm_mic_title" to "🎙️ માઇક્રોફોન (Microphone)",
+            "perm_mic_desc" to "ગુજરાતીમાં બોલીને ખેતીના પ્રશ્નો પૂછવા અને વૉઇસમાં જવાબ સાંભળવા.",
+            "perm_how_to_allow_tip" to "💡 સૂચન: આગલી સ્ક્રીન પર 'While using the app' પસંદ કરો.",
+            "perm_continue_btn" to "આગળ વધો અને પરવાનગી આપો",
+            "perm_audio_guide" to "પરવાનગી માર્ગદર્શિકા સાંભળો",
+            "perm_tts_speech" to "નમસ્તે! કૃષિ સેવકને ૩ પરવાનગીઓની જરૂર છે: પહેલું, માર્કેટ યાર્ડના ભાવ અને હવામાન માટે લોકેશન. બીજું, પાંદડાના રોગ તપાસવા માટે કેમેરો. અને ત્રીજું, બોલીને સલાહ મેળવવા માટે માઇક. કૃપા કરીને આગળ વધો બટન દબાવો.",
         ),
 
         // =========================================================================
@@ -2029,7 +2155,21 @@ object AppStrings {
             "onboarding_name_prompt" to "ਤੁਹਾਡਾ ਸ਼ੁਭ ਨਾਮ ਕੀ ਹੈ?",
             "onboarding_name_hint" to "ਆਪਣਾ ਪੂਰਾ ਨਾਮ ਦਰਜ ਕਰੋ",
             "onboarding_lang_prompt" to "ਆਪਣੀ ਪਸੰਦੀਦਾ ਭਾਸ਼ਾ ਚੁਣੋ",
-            "onboarding_start_btn" to "ਹੁਣੇ ਸ਼ੁਰੂ ਕਰੋ"
+            "onboarding_start_btn" to "ਹੁਣੇ ਸ਼ੁਰੂ ਕਰੋ",
+
+            // Permissions Intro Screen
+            "perm_intro_title" to "ਸਮਾਰਟ ਖੇਤੀ ਲਈ ਲੋੜੀਂਦੀਆਂ ਇਜਾਜ਼ਤਾਂ",
+            "perm_intro_subtitle" to "ਫ਼ਸਲਾਂ ਦੀ ਸੁਰੱਖਿਆ, ਮੰਡੀ ਦੇ ਭਾਅ ਅਤੇ ਆਵਾਜ਼ੀ ਸਹਾਇਤਾ ਲਈ 3 ਇਜਾਜ਼ਤਾਂ ਦੀ ਲੋੜ ਹੈ।",
+            "perm_loc_title" to "📍 ਲੋਕੇਸ਼ਨ (Location)",
+            "perm_loc_desc" to "ਨੇੜਲੀ APMC ਮੰਡੀ ਦੇ ਤਾਜ਼ਾ ਭਾਅ, 7-ਦਿਨਾਂ ਮੌਸਮ ਅਤੇ ਸਪਰੇਅ ਦੇ ਸਹੀ ਸਮੇਂ ਲਈ।",
+            "perm_cam_title" to "📷 ਕੈਮਰਾ (Camera)",
+            "perm_cam_desc" to "ਕ੍ਰੌਪ ਡਾਕਟਰ ਰਾਹੀਂ ਬਿਮਾਰ ਪੱਤਿਆਂ ਨੂੰ ਸਕੈਨ ਕਰਕੇ ਬਿਮਾਰੀ ਦੀ ਪਛਾਣ ਅਤੇ ਇਲਾਜ ਲਈ।",
+            "perm_mic_title" to "🎙️ ਮਾਈਕ੍ਰੋਫ਼ੋਨ (Microphone)",
+            "perm_mic_desc" to "ਪੰਜਾਬੀ ਵਿੱਚ ਬੋਲ ਕੇ ਖੇਤੀ ਸਲਾਹ ਪੁੱਛਣ ਅਤੇ ਆਵਾਜ਼ ਵਿੱਚ ਜਵਾਬ ਸੁਣਨ ਲਈ।",
+            "perm_how_to_allow_tip" to "💡 ਸੁਝਾਅ: ਅਗਲੀ ਸਕ੍ਰੀਨ 'ਤੇ 'While using the app' ਚੁਣੋ।",
+            "perm_continue_btn" to "ਅੱਗੇ ਵਧੋ ਅਤੇ ਇਜਾਜ਼ਤ ਦਿਓ",
+            "perm_audio_guide" to "ਇਜਾਜ਼ਤ ਗਾਈਡ ਸੁਣੋ",
+            "perm_tts_speech" to "ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ! ਕ੍ਰਿਸ਼ੀ ਸੇਵਕ ਨੂੰ ਤਿੰਨ ਇਜਾਜ਼ਤਾਂ ਚਾਹੀਦੀਆਂ ਹਨ: ਪਹਿਲੀ, ਮੰਡੀ ਦੇ ਭਾਅ ਅਤੇ ਮੌਸਮ ਲਈ ਲੋਕੇਸ਼ਨ। ਦੂਜੀ, ਪੱਤਿਆਂ ਦੀ ਬਿਮਾਰੀ ਜਾਂਚਣ ਲਈ ਕੈਮਰਾ। ਅਤੇ ਤੀਜੀ, ਬੋਲ ਕੇ ਸਲਾਹ ਲੈਣ ਲਈ ਮਾਈਕ। ਕਿਰਪਾ ਕਰਕੇ ਅੱਗੇ ਵਧੋ ਬਟਨ ਦਬਾਓ।",
         ),
 
         // =========================================================================
@@ -2222,7 +2362,21 @@ object AppStrings {
             "onboarding_name_prompt" to "ଆପଣଙ୍କ ଶୁଭ ନାମ କ'ଣ?",
             "onboarding_name_hint" to "ଆପଣଙ୍କ ସମ୍ପୂର୍ଣ୍ଣ ନାମ ଲେଖନ୍ତୁ",
             "onboarding_lang_prompt" to "ଆପଣଙ୍କ ପସନ୍ଦର ଭାଷା ବାଛନ୍ତୁ",
-            "onboarding_start_btn" to "ବର୍ତ୍ତମାନ ଆରମ୍ଭ କରନ୍ତୁ"
+            "onboarding_start_btn" to "ବର୍ତ୍ତମାନ ଆରମ୍ଭ କରନ୍ତୁ",
+
+            // Permissions Intro Screen
+            "perm_intro_title" to "ସ୍ମାର୍ଟ କୃଷି ପାଇଁ ଆବଶ୍ୟକ ଅନୁମତି",
+            "perm_intro_subtitle" to "ଫସଲ ସୁରକ୍ଷା, ସଠିକ୍ ମଣ୍ଡି ଦର ଏବଂ କଥାବାର୍ତ୍ତା ପରାମର୍ଶ ପାଇଁ ୩ଟି ଅନୁମତି ଆବଶ୍ୟକ।",
+            "perm_loc_title" to "📍 ଲୋକେସନ୍ (Location)",
+            "perm_loc_desc" to "ନିକଟସ୍ଥ APMC ମଣ୍ଡି ଦର, ୭ ଦିନର ପାଣିପାଗ ଏବଂ କୀଟନାଶକ ସ୍ପ୍ରେ ସମୟ ପାଇଁ।",
+            "perm_cam_title" to "📷 କ୍ୟାମେରା (Camera)",
+            "perm_cam_desc" to "କ୍ରପ୍ ଡାକ୍ତର ଦ୍ୱାରା ରୋଗାକ୍ରାନ୍ତ ପତ୍ର ସ୍କାନ୍ କରି ରୋଗ ଚିହ୍ନଟ ଓ ଉପଚାର ପାଇବା ପାଇଁ।",
+            "perm_mic_title" to "🎙️ ମାଇକ୍ରୋଫୋନ୍ (Microphone)",
+            "perm_mic_desc" to "ଓଡ଼ିଆରେ କଥା ହୋଇ କୃଷି ପରାମର୍ଶ ପାଇବା ଏବଂ କଥାବାର୍ତ୍ତାରେ ଉତ୍ତର ଶୁଣିବା ପାଇଁ।",
+            "perm_how_to_allow_tip" to "💡 ଟିପ୍: ପରବର୍ତ୍ତୀ ସ୍କ୍ରିନ୍ରେ 'While using the app' ବାଛନ୍ତୁ।",
+            "perm_continue_btn" to "ଆଗକୁ ବଢ଼ନ୍ତୁ ଏବଂ ଅନୁମତି ଦିଅନ୍ତୁ",
+            "perm_audio_guide" to "ଅନୁମତି ଗାଇଡ୍ ଶୁଣନ୍ତୁ",
+            "perm_tts_speech" to "ନମସ୍କାର! କୃଷି ସେବକକୁ ତିନୋଟି ଅନୁମତି ଆବଶ୍ୟକ: ପ୍ରଥମ, ମଣ୍ଡି ଦର ଏବଂ ପାଣିପାଗ ପାଇଁ ଲୋକେସନ୍। ଦ୍ୱିତୀୟ, ପତ୍ର ରୋଗ ପରୀକ୍ଷା ପାଇଁ କ୍ୟାମେରା। ଏବଂ ତୃତୀୟ, କଥା ହୋଇ ପରାମର୍ଶ ପାଇଁ ମାଇକ୍। ଦୟାକରି ଆଗକୁ ବଢ଼ନ୍ତୁ ବଟନ୍ ଦବାନ୍ତୁ।",
         )
     )
 }

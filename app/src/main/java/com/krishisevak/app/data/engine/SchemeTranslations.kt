@@ -1,7 +1,6 @@
 package com.krishisevak.app.data.engine
 
 import com.krishisevak.app.ui.schemes.SchemeItem
-import com.krishisevak.app.utils.AppStrings
 
 data class SchemeTranslation(
     val title: String,

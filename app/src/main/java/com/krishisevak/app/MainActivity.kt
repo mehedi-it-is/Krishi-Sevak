@@ -10,8 +10,12 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -44,6 +48,7 @@ import com.krishisevak.app.ui.learn.LearnScreen
 import com.krishisevak.app.ui.learn.LearnViewModel
 import com.krishisevak.app.ui.onboarding.OnboardingScreen
 import com.krishisevak.app.ui.onboarding.OnboardingViewModel
+import com.krishisevak.app.ui.permissions.PermissionsIntroScreen
 import com.krishisevak.app.ui.schemes.SchemesScreen
 import com.krishisevak.app.ui.schemes.SchemesViewModel
 import com.krishisevak.app.ui.soil.SoilScreen
@@ -51,6 +56,7 @@ import com.krishisevak.app.ui.soil.SoilViewModel
 import com.krishisevak.app.ui.theme.KrishiSevakTheme
 import com.krishisevak.app.utils.LocationHelper
 import com.krishisevak.app.utils.TtsManager
+import kotlinx.coroutines.launch
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -60,6 +66,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var repository: ChatRepository
     private lateinit var ttsManager: TtsManager
     private lateinit var locationHelper: LocationHelper
+    private lateinit var mandiApi: MandiApi
     private lateinit var plantScanDao: PlantScanDao
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -108,7 +115,7 @@ class MainActivity : ComponentActivity() {
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-        val mandiApi = mandiRetrofit.create(MandiApi::class.java)
+        mandiApi = mandiRetrofit.create(MandiApi::class.java)
 
         setContent {
             val isDarkMode by dataStoreManager.isDarkModeFlow.collectAsStateWithLifecycle(initialValue = false)
@@ -119,8 +126,26 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val userNameState by dataStoreManager.userNameFlow.collectAsStateWithLifecycle(initialValue = null)
+                    val hasCompletedPerms by dataStoreManager.hasCompletedPermissionsIntroFlow.collectAsStateWithLifecycle(initialValue = null)
+                    val userLangState by dataStoreManager.userLanguageCodeFlow.collectAsStateWithLifecycle(initialValue = null)
 
-                    when (val userName = userNameState) {
+                    val userName = userNameState
+                    val hasPerms = hasCompletedPerms
+                    val userLang = userLangState
+
+                    var initialStartDestination by remember { mutableStateOf<String?>(null) }
+
+                    LaunchedEffect(userName, hasPerms, userLang) {
+                        if (initialStartDestination == null && userName != null && hasPerms != null && userLang != null) {
+                            initialStartDestination = when {
+                                userName.isEmpty() -> "onboarding"
+                                !hasPerms -> "permissions_intro/$userLang"
+                                else -> "dashboard"
+                            }
+                        }
+                    }
+
+                    when (val startDest = initialStartDestination) {
                         null -> {
                             Box(
                                 modifier = Modifier.fillMaxSize(),
@@ -129,21 +154,9 @@ class MainActivity : ComponentActivity() {
                                 CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                             }
                         }
-                        "" -> {
-                            MainAppNavigation(
-                                startDestination = "onboarding",
-                                dataStoreManager = dataStoreManager,
-                                repository = repository,
-                                ttsManager = ttsManager,
-                                locationHelper = locationHelper,
-                                mandiApi = mandiApi,
-                                plantScanDao = plantScanDao,
-                                kindwiseApi = kindwiseApi
-                            )
-                        }
                         else -> {
                             MainAppNavigation(
-                                startDestination = "dashboard",
+                                startDestination = startDest,
                                 dataStoreManager = dataStoreManager,
                                 repository = repository,
                                 ttsManager = ttsManager,
@@ -185,18 +198,54 @@ fun MainAppNavigation(
             val onboardingVm = remember { OnboardingViewModel(dataStoreManager, ttsManager) }
             OnboardingScreen(
                 viewModel = onboardingVm,
-                onOnboardingComplete = {
-                    navController.navigate("dashboard") {
+                onOnboardingComplete = { selectedLangCode ->
+                    navController.navigate("permissions_intro/$selectedLangCode") {
                         popUpTo("onboarding") { inclusive = true }
                     }
                 }
             )
         }
 
-        composable("dashboard") {
+        composable(
+            route = "permissions_intro/{langCode}",
+            arguments = listOf(
+                navArgument("langCode") {
+                    type = NavType.StringType
+                    defaultValue = "hi"
+                }
+            )
+        ) { backStackEntry ->
+            val langCode = backStackEntry.arguments?.getString("langCode") ?: "hi"
+            val coroutineScope = rememberCoroutineScope()
+            PermissionsIntroScreen(
+                userLanguageCode = langCode,
+                ttsManager = ttsManager,
+                locationHelper = locationHelper,
+                onPermissionsComplete = {
+                    coroutineScope.launch {
+                        dataStoreManager.setCompletedPermissionsIntro(true)
+                    }
+                    navController.navigate("dashboard?openTour=true") {
+                        popUpTo("permissions_intro/{langCode}") { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(
+            route = "dashboard?openTour={openTour}",
+            arguments = listOf(
+                navArgument("openTour") {
+                    type = NavType.BoolType
+                    defaultValue = false
+                }
+            )
+        ) { backStackEntry ->
+            val openTour = backStackEntry.arguments?.getBoolean("openTour") ?: false
             DashboardScreen(
                 viewModel = dashboardVm,
                 schemesViewModel = schemesVm,
+                initialOpenTour = openTour,
                 onNavigateToChat = { chatId, initialText, initialImageUri ->
                     var route = "chat"
                     val queryParams = mutableListOf<String>()

@@ -145,7 +145,7 @@ class ChatViewModel(
                 _uiState.value = ChatUiState.Success(currentChatId)
 
                 // Instantly speak the AI response with Sarvam bulbul:v3
-                ttsManager.speak(aiMsgId, responseText, targetLangCode)
+                ttsManager.speak(aiMsgId, responseText, targetLangCode, useSarvamBulbul = true)
             } catch (e: Exception) {
                 _uiState.value = ChatUiState.Error(e.localizedMessage ?: "Failed to get response")
             }
@@ -183,7 +183,7 @@ class ChatViewModel(
                 _uiState.value = ChatUiState.Success(currentChatId)
 
                 // Instantly speak the crop advisory with Sarvam bulbul:v3
-                ttsManager.speak(aiMsgId, advisoryText, targetLangCode)
+                ttsManager.speak(aiMsgId, advisoryText, targetLangCode, useSarvamBulbul = true)
             } catch (e: Exception) {
                 _uiState.value = ChatUiState.Error(e.localizedMessage ?: "Crop health analysis failed")
             }
@@ -203,7 +203,7 @@ class ChatViewModel(
     fun toggleTts(messageId: String, text: String) {
         val detected = LanguageDetector.detectLanguage(text)
         val speakLangCode = if (detected.code != "en") detected.code else userLanguageCode.value
-        ttsManager.speak(messageId, text, speakLangCode)
+        ttsManager.speak(messageId, text, speakLangCode, useSarvamBulbul = true)
     }
 
     override fun onCleared() {

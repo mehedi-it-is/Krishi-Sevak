@@ -1,7 +1,6 @@
 package com.krishisevak.app
 
 import com.krishisevak.app.data.local.datastore.DataStoreManager
-import com.krishisevak.app.utils.LocalSmartAiEngine
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue

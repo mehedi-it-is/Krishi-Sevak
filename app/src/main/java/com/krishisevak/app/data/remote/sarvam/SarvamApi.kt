@@ -38,9 +38,7 @@ data class SarvamTtsRequest(
     @SerializedName("inputs") val inputs: List<String>,
     @SerializedName("target_language_code") val targetLanguageCode: String = "hi-IN",
     @SerializedName("speaker") val speaker: String? = "ritu",
-    @SerializedName("pitch") val pitch: Double? = 0.0,
     @SerializedName("pace") val pace: Double? = 1.0,
-    @SerializedName("loudness") val loudness: Double? = 1.2,
     @SerializedName("speech_sample_rate") val speechSampleRate: Int? = 16000,
     @SerializedName("enable_preprocessing") val enablePreprocessing: Boolean = true,
     @SerializedName("model") val model: String = "bulbul:v3"
