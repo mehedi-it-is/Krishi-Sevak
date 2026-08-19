@@ -155,6 +155,24 @@ adb shell am start -n com.krishisevak.app/.MainActivity
 
 ---
 
+## 📱 Device Compatibility & Limitations
+
+### ✅ Supported Devices
+* **Android OS Range**: **Android 7.0 (Nougat / API 24)** up to **Android 15 (API 35)**.
+* **Brands & Form Factors**: All Android smartphones, phablets, and tablets (Samsung, Motorola, Xiaomi/Redmi/Poco, Realme, Vivo, Oppo, OnePlus, Google Pixel, Nothing, Tecno, Infinix, JioPhone Next / Pragati OS, etc.).
+* **Coverage**: Compatible with **over 96.5% of all active Android devices globally** (>98% in India).
+
+### ❌ Incompatible Devices (Will NOT Work)
+* **Legacy Android Devices**: Android 6.0 (Marshmallow / API 23) or older (`minSdk = 24` requirement; installation will fail with `INSTALL_FAILED_OLDER_SDK`).
+* **Non-Android Operating Systems**: Apple iOS (iPhone/iPad), Windows Phone, KaiOS feature phones (JioPhone 1 & 2).
+* **Desktops / Browsers**: Cannot run natively without an Android emulator (BlueStacks, Android Studio Emulator, or WSA).
+
+### ⚠️ Special Notes & Partial Limitations
+* **Devices without Google Play Services (GMS)**: On Huawei devices (post-2019) or de-Googled custom ROMs without microG, GPS auto-location detection will fallback to manual state/district selection.
+* **Low-Memory Devices (< 1GB RAM)**: Phones with less than 1GB RAM on Android 7/8 may experience stutter when taking or loading high-resolution camera photos in the Crop Doctor diagnosis tool.
+
+---
+
 ## 🛠️ Common Troubleshooting
 
 | Issue | Cause | Solution |
