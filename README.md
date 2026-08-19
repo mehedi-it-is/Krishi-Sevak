@@ -1,44 +1,170 @@
-# KrishiSevak (कृषि सेवक)
+# KrishiSevak (कृषि सेवक) 🌾🚜
 
-KrishiSevak is an AI-powered agricultural assistant designed to empower farmers in India with real-time data, localized information, and expert advice. Built with Android and Jetpack Compose, the app bridges the information gap for farmers by providing a simple, voice-first, and multi-lingual interface.
+**KrishiSevak** is an AI-powered, voice-first agricultural companion designed specifically for farmers across India. Built with **Modern Android (Jetpack Compose, Kotlin 2.0, Material 3, Clean MVVM)**, the app delivers localized crop intelligence, real-time APMC Mandi market rates, weather alerts, government scheme guidance, and precision smart farming tools across **11 major Indian languages**.
 
-## 🚀 Key Features
+---
 
-*   **AI-Powered Chat:** Powered by the Sarvam AI (105B Conversations) engine to provide intelligent, contextual, and localized agricultural advice, crop disease diagnosis, and farming tips across all 11 Indic languages.
-*   **Voice-First Interface (TTS & STT):** Integrated with Sarvam Saaras v3 for speech recognition and Sarvam Bulbul v3 (speaker Ritu) with offline Android native TTS fallback for responsive voice advisories.
-*   **Real-Time Mandi Prices:** Fetches live crop prices directly from the Indian Government's Agmarknet dataset (`data.gov.in`). Features an intelligent offline/mock fallback system with over 40 major crops if the API is unreachable, and dynamic UI filtering that only shows categories with available data.
-*   **Government Schemes Portal:** A comprehensive list of 15+ Central and 15+ State-specific agricultural schemes (e.g., PM-Kisan, PMFBY). Schemes are dynamically filtered based on the user's GPS location and include direct, clickable intent links to official government application portals.
-*   **Weather Forecasts:** Real-time location-based weather updates, including current conditions and actionable agro-weather advisories based on temperature, humidity, and wind speed.
+## 🌟 Key Features
 
-## 🛠 Tech Stack
+### 1. 🤖 Conversational Agri-AI Chat
+* **Indic-Trained Agricultural LLM**: Powered by **Sarvam AI (105B Indic Conversations)** for deep, contextual, and localized farming advisory.
+* **Voice-First Interaction**: Integrated with **Sarvam Saaras v3** for speech-to-text and **Sarvam Bulbul v3** (voice: *Ritu*) with native Edge TTS & Android local TTS fallback.
+* **Dialect Awareness**: Authentic Indian language support with Indian English (`en-IN`) and West Bengal Indian Bengali (`bn-IN`).
 
-*   **Platform:** Android (Kotlin)
-*   **UI Toolkit:** Jetpack Compose (Material Design 3)
-*   **Architecture:** MVVM (Model-View-ViewModel)
-*   **Asynchronous Programming:** Kotlin Coroutines & StateFlow
-*   **Network:** Retrofit2 & OkHttp3 (for Sarvam AI, Kindwise, Weather, Mandi API)
-*   **Local Storage:** Jetpack DataStore (Preferences) & Room Database
-*   **Location:** FusedLocationProviderClient (Google Play Services)
+### 2. 📊 Live Mandi Market Prices (APMC Agmarknet)
+* **Real-Time Commodity Rates**: Live integration with the Indian Government's Agmarknet dataset (`data.gov.in`).
+* **Offline-First Resilience**: Intelligent fallback dataset covering **40+ major Indian crops** with regional dynamic filtering by commodity category.
+* **Search & Favorites**: Instant filtering by state, market, and crop with persistent favorites.
 
-## 📦 Project Structure
+### 3. 🏛️ Government Schemes Portal
+* **31 National & State Schemes**: Complete repository of **15 Central/National Schemes** (PM-KISAN, PMFBY, KCC, Soil Health Card, PM-KUSUM, e-NAM, etc.) and **16 State-Specific Schemes** (Maharashtra, Punjab, Uttar Pradesh, West Bengal, Telangana, Tamil Nadu, Karnataka, Gujarat, Bihar, Odisha, Kerala, etc.).
+* **100% Fully Localized**: Titles, descriptions, eligibility, benefits, assistance amounts, and step-by-step application instructions in all 11 languages.
+* **One-Tap Official Applications**: Direct in-app links to official state and central application portals.
 
-*   `app/src/main/java/com/krishisevak/app/ui/onboarding/`: Screens for Name, Location, and Language selection.
-*   `app/src/main/java/com/krishisevak/app/ui/dashboard/`: Main hub containing tabs for Mandi Prices, Government Schemes, Weather, and Alerts.
-*   `app/src/main/java/com/krishisevak/app/ui/chat/`: The conversational AI interface.
-*   `app/src/main/java/com/krishisevak/app/data/remote/`: API interfaces and data models (SarvamApi, KindwiseApi, MandiApi, WeatherApi).
-*   `app/src/main/java/com/krishisevak/app/data/local/`: Room database & DataStore implementation for persisting user preferences.
-*   `app/src/main/java/com/krishisevak/app/utils/`: Helper classes for TTS (`TtsManager`), Audio (`VoiceRecorder`), Recommendations (`ChatRecommendations`), and strings (`AppStrings`).
+### 4. 🛠️ Smart Agri Tools
+* **🩺 Multimodal Crop Doctor**: Visual crop disease and pest diagnosis using camera/gallery photo upload with Kindwise AI and localized weather-based preventive threat management.
+* **🧪 Soil Advisory & Fertilizer Calculator**: 
+  - Calculates exact bag requirements for Urea, DAP, MOP, and SSP tailored to specific crops, acreage, and soil types.
+  - Comprehensive N-P-K soil health assessment, deficiency identification, and organic manure recommendations.
+* **🌾 Smart Crop Recommendation Engine**: Ranked crop suitability based on crop season (Kharif, Rabi, Zaid), water availability, and soil type.
+* **📅 12-Month Agro Almanac**: Month-by-month agricultural calendar with seasonal activities, weather tips, and planting schedules.
+* **☎️ KVK & Kisan Helpline Directory**: GPS-based nearest Krishi Vigyan Kendra locator, one-tap calling to Kisan Call Center (`1800-180-1551`), and emergency helplines.
 
-## ⚙️ How to Build and Run
+---
 
-1.  Clone the repository to your local machine.
-2.  Open the project in **Android Studio**.
-3.  Sync the project with Gradle files.
-4.  Run `./gradlew assembleDebug` in the terminal to build the debug APK.
-5.  Click the **Run** button or use `./gradlew installDebug` to deploy the app to an emulator or a connected physical device.
+## 🌐 Supported Indian Languages
 
-## 🔑 Note on APIs
-Provide your API keys in `local.properties` (e.g., `SARVAM_API_KEY`, `KINDWISE_API_KEY`, `OPENWEATHER_API_KEY`, `MANDI_API_KEY`). The app includes offline local fallbacks if APIs are unreachable.
+| Language | Code | Native Name | Script |
+|---|---|---|---|
+| **English (India)** | `en` | English (Indian) | Latin |
+| **Hindi** | `hi` | हिन्दी | Devanagari |
+| **Bengali (India)** | `bn` | বাংলা | Bengali |
+| **Marathi** | `mr` | मराठी | Devanagari |
+| **Telugu** | `te` | తెలుగు | Telugu |
+| **Tamil** | `ta` | தமிழ் | Tamil |
+| **Kannada** | `kn` | ಕನ್ನಡ | Kannada |
+| **Gujarati** | `gu` | ગુજરાતી | Gujarati |
+| **Punjabi** | `pa` | ਪੰਜਾਬੀ | Gurmukhi |
+| **Malayalam** | `ml` | മലയാളം | Malayalam |
+| **Odia** | `or` | ଓଡ଼ିଆ | Odia |
 
-## 🛡 License
-This project is for demonstration and development purposes.
+---
+
+## 🏗️ Architecture & Tech Stack
+
+```
+com.krishisevak.app/
+├── data/
+│   ├── engine/       # Core offline domain engines (Schemes, Soil, Crop Doctor, Almanac)
+│   ├── local/        # Room Database, DAOs, Entities, DataStore Preferences
+│   └── remote/       # Retrofit Services, OkHttp, WebSocket Edge TTS, API DTOs
+├── ui/
+│   ├── almanac/      # Crop Almanac Screen
+│   ├── chat/         # Conversational AI Screen & Chat Bubbles
+│   ├── crop/         # Crop Recommendation Screen
+│   ├── dashboard/    # Main Dashboard, Mandi, Weather & Quick Actions
+│   ├── doctor/       # Crop Doctor Disease Diagnosis Screen
+│   ├── kvk/          # Krishi Vigyan Kendra & Helpline Screen
+│   ├── onboarding/   # Language, Name & Location Setup Screens
+│   ├── schemes/      # Government Schemes Screen & Detail Cards
+│   ├── soil/         # Soil Advisory & Fertilizer Calculator
+│   └── theme/        # Material 3 Color Schemes, Typography & Shapes
+└── utils/            # AppStrings, TtsManager, VoiceRecorder, LocationHelper
+```
+
+* **UI Framework**: Jetpack Compose (100% declarative UI with Material Design 3)
+* **Architecture Pattern**: MVVM + Clean Architecture + Repository Pattern
+* **Language & Compiler**: Kotlin `2.0.21` with Kotlin Symbol Processing (`KSP`)
+* **Asynchronous Streams**: Kotlin Coroutines (`1.9.0`) & `StateFlow`
+* **Local Persistence**: Jetpack Room `2.8.4` & Jetpack DataStore Preferences `1.1.1`
+* **Networking**: Retrofit `2.9.0`, OkHttp `4.12.0`, Gson
+* **Image Loading**: Coil Compose `2.7.0`
+* **Audio & Speech**: Android Native `TextToSpeech` & Microsoft Edge TTS WebSocket Client
+
+---
+
+## 🚀 Getting Started (Cloning & Running)
+
+### 📋 Prerequisites
+1. **Java Development Kit (JDK)**: **JDK 17** or **JDK 21** installed and configured.
+2. **Android Studio**: Android Studio Hedgehog / Iguana / Jellyfish / Koala / Ladybug or newer.
+3. **Android SDK**: Android 15.0 SDK Platform (**API 35**) and Build Tools (`35.0.0`).
+
+---
+
+### 📥 1. Clone the Repository
+```bash
+git clone https://github.com/mehedi-it-is/Krishi-Sevak.git
+cd Krishi-Sevak
+```
+
+### ⚙️ 2. Configure `local.properties`
+Copy the template file to `local.properties`:
+```bash
+cp local.properties.example local.properties
+```
+
+Open `local.properties` and add your API keys:
+```properties
+## Optional API Keys (All features have offline fallbacks)
+SARVAM_API_KEY="your_sarvam_api_key"
+OPENWEATHER_API_KEY="your_openweather_api_key"
+MANDI_API_KEY="your_data_gov_in_api_key"
+KINDWISE_API_KEY="your_kindwise_api_key"
+```
+
+> **Note on `sdk.dir`**: If opening the project inside **Android Studio**, Android Studio automatically detects and configures `sdk.dir`. If building from terminal without Android Studio, specify your SDK path (e.g., `sdk.dir=/home/username/Android/Sdk`).
+
+---
+
+### 🔨 3. Build the Project
+
+#### Make Gradle Wrapper Executable (Linux / macOS):
+```bash
+chmod +x gradlew
+```
+
+#### Run Unit Tests & Build Debug APK:
+```bash
+./gradlew testDebugUnitTest assembleDebug
+```
+The compiled APK will be located at:
+```
+app/build/outputs/apk/debug/app-debug.apk
+```
+
+---
+
+### 📱 4. Deploy to Device / Emulator
+
+#### Using Android Studio:
+1. Open the project in Android Studio.
+2. Allow Gradle sync to finish.
+3. Select your connected device or emulator in the device dropdown.
+4. Click **Run ▶** (`Shift + F10`).
+
+#### Using Command Line (ADB):
+```bash
+./gradlew installDebug
+```
+Or stream-install via `adb`:
+```bash
+adb install -r app/build/outputs/apk/debug/app-debug.apk
+adb shell am start -n com.krishisevak.app/.MainActivity
+```
+
+---
+
+## 🛠️ Common Troubleshooting
+
+| Issue | Cause | Solution |
+|---|---|---|
+| **`SDK location not found`** | `sdk.dir` missing in `local.properties` or `ANDROID_HOME` not exported. | Open the project in Android Studio to auto-generate `local.properties`, or set `export ANDROID_HOME=/path/to/Sdk`. |
+| **`Unsupported class file major version`** | Gradle running on old Java version (Java 8 or 11). | Switch to **JDK 17 or JDK 21** in Android Studio: `Settings` $\to$ `Build, Execution, Deployment` $\to$ `Build Tools` $\to$ `Gradle` $\to$ `Gradle JDK`. |
+| **`INSTALL_FAILED_USER_RESTRICTED`** | Phone security blocking USB install (common on Xiaomi/MIUI/Realme/Oppo). | On your phone, go to **Developer Options** and enable **"Install via USB"** and **"USB debugging (Security settings)"**. |
+| **`Permission denied: ./gradlew`** | Gradle wrapper lost Unix execution bit. | Run `chmod +x gradlew`. |
+
+---
+
+## 📄 License
+This project is developed for empowerment and demonstration purposes. Contributions, issues, and feature requests are welcome!

@@ -1,8 +1,34 @@
-## Location of the Android SDK
-sdk.dir=/path/to/your/Android/Sdk
+## ==============================================================================
+## KrishiSevak (कृषि सेवक) - Local Configuration Template
+## ==============================================================================
+## Copy this file as 'local.properties' in the root directory:
+##   cp local.properties.example local.properties
+##
+## Note: If opening in Android Studio, Android Studio will automatically set
+## 'sdk.dir' for your system. If building from terminal, specify your SDK path below.
+## ==============================================================================
 
-## API Keys
-SARVAM_API_KEY="your_sarvam_api_key_here"
-OPENWEATHER_API_KEY="your_openweather_api_key_here"
-MANDI_API_KEY="your_data_gov_in_api_key_here"
-KINDWISE_API_KEY="your_kindwise_api_key_here"
+## Location of the Android SDK (Uncomment and edit only if building via CLI without Android Studio)
+# sdk.dir=/home/username/Android/Sdk            # Linux
+# sdk.dir=/Users/username/Library/Android/sdk   # macOS
+# sdk.dir=C\:\\Users\\username\\AppData\\Local\\Android\\Sdk  # Windows
+
+## ==============================================================================
+## API Keys (Optional - App includes full offline engines and fallback datasets)
+## ==============================================================================
+
+# Sarvam AI API Key (For Indian LLM chat, STT Saaras v3, and TTS Bulbul v3)
+# Get from: https://dashboard.sarvam.ai/
+SARVAM_API_KEY=""
+
+# OpenWeatherMap API Key (For live local weather & forecasts)
+# Get from: https://openweathermap.org/api
+OPENWEATHER_API_KEY=""
+
+# Data.gov.in API Key (For live Agmarknet APMC Mandi daily commodity prices)
+# Get from: https://data.gov.in/
+MANDI_API_KEY=""
+
+# Kindwise Crop Doctor API Key (For plant disease identification)
+# Get from: https://kindwise.com/
+KINDWISE_API_KEY=""

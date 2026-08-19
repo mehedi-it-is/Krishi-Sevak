@@ -20,8 +20,8 @@ if (localPropertiesFile.exists()) {
 }
 
 fun getLocalProperty(key: String, defaultValue: String = ""): String {
-    val prop = localProperties.getProperty(key) ?: defaultValue
-    return prop.trim().removeSurrounding("\"")
+    val prop = localProperties.getProperty(key) ?: System.getenv(key) ?: defaultValue
+    return prop.trim().removeSurrounding("\"").removeSurrounding("'")
 }
 
 android {
