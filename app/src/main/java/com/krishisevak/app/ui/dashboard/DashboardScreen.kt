@@ -322,7 +322,7 @@ fun DashboardScreen(
                     ) {
                         NavigationDrawerItem(
                             icon = { Text("📞", fontSize = 18.sp) },
-                            label = { Text("Kisan Call Center & KVKs") },
+                            label = { Text(AppStrings.get("tool_kvk_title", userLanguageCode)) },
                             selected = false,
                             onClick = {
                                 coroutineScope.launch { drawerState.close() }
@@ -332,7 +332,7 @@ fun DashboardScreen(
 
                         NavigationDrawerItem(
                             icon = { Text("⚖️", fontSize = 18.sp) },
-                            label = { Text("Fertilizer & Soil Advisory") },
+                            label = { Text(AppStrings.get("tool_soil_title", userLanguageCode)) },
                             selected = false,
                             onClick = {
                                 coroutineScope.launch { drawerState.close() }
@@ -392,7 +392,7 @@ fun DashboardScreen(
 
                         NavigationDrawerItem(
                             icon = { Text("🎓", fontSize = 18.sp) },
-                            label = { Text("App Tour & Guide / ऐप गाइड") },
+                            label = { Text(AppStrings.get("tool_tour_title", userLanguageCode)) },
                             selected = false,
                             onClick = {
                                 coroutineScope.launch { drawerState.close() }
@@ -1047,10 +1047,10 @@ fun MandiTabView(
                 )
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     item {
-                        SmartToolQuickCard("📞", "Kisan Helpline", "1800-180-1551 & KVK", Color(0xFF22C55E), onNavigateToKvk)
+                        SmartToolQuickCard("📞", AppStrings.get("tool_helpline_title", userLanguageCode), AppStrings.get("tool_helpline_sub", userLanguageCode), Color(0xFF22C55E), onNavigateToKvk)
                     }
                     item {
-                        SmartToolQuickCard("⚖️", "Fertilizer Dosage", "Exact NPK Bags", Color(0xFF3B82F6), onNavigateToSoil)
+                        SmartToolQuickCard("⚖️", AppStrings.get("tool_soil_title", userLanguageCode), AppStrings.get("tool_soil_sub", userLanguageCode), Color(0xFF3B82F6), onNavigateToSoil)
                     }
                     item {
                         SmartToolQuickCard("🩺", AppStrings.get("tool_doctor_title", userLanguageCode), AppStrings.get("tool_doctor_sub", userLanguageCode), Color(0xFFEF4444), onNavigateToCropDoctor)

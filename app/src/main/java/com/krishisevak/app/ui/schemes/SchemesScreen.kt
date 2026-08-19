@@ -38,7 +38,9 @@ fun SchemesScreen(
     val filteredSchemes by viewModel.filteredSchemes.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
-    val screenTitle = "${AppStrings.get("schemes_title", userLanguageCode)} ($userState & Central)"
+    val localizedState = com.krishisevak.app.data.engine.SchemeTranslations.getLocalizedStateName(userState, userLanguageCode)
+    val localizedCentral = AppStrings.get("scheme_central", userLanguageCode)
+    val screenTitle = "${AppStrings.get("schemes_title", userLanguageCode)} ($localizedState & $localizedCentral)"
 
     Scaffold(
         topBar = {
@@ -165,7 +167,7 @@ fun SchemeDetailCard(
                             color = Color(0xFFE65100)
                         ) {
                             Text(
-                                text = scheme.targetState,
+                                text = com.krishisevak.app.data.engine.SchemeTranslations.getLocalizedStateName(scheme.targetState, userLanguageCode),
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
@@ -178,7 +180,7 @@ fun SchemeDetailCard(
                             color = MaterialTheme.colorScheme.primary
                         ) {
                             Text(
-                                text = "Central",
+                                text = AppStrings.get("scheme_central", userLanguageCode),
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
@@ -285,7 +287,7 @@ fun SchemeDetailCard(
                         ) {
                             scheme.openingDate?.let {
                                 Text(
-                                    text = "📅 Opens: $it",
+                                    text = "${AppStrings.get("scheme_opens", userLanguageCode)}: $it",
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     color = Color(0xFF2E7D32)
@@ -293,7 +295,7 @@ fun SchemeDetailCard(
                             }
                             scheme.closingDate?.let {
                                 Text(
-                                    text = "📅 Closes: $it",
+                                    text = "${AppStrings.get("scheme_closes", userLanguageCode)}: $it",
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     color = Color(0xFFC62828)
@@ -334,7 +336,7 @@ fun SchemeDetailCard(
                     modifier = Modifier.size(20.dp)
                 )
                 Text(
-                    text = if (isExpanded) "Tap to collapse" else "Tap for full details",
+                    text = if (isExpanded) AppStrings.get("scheme_tap_collapse", userLanguageCode) else AppStrings.get("scheme_tap_expand", userLanguageCode),
                     fontSize = 11.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

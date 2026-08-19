@@ -59,12 +59,12 @@ fun SoilScreen(
                 title = {
                     Column {
                         Text(
-                            text = "⚖️ Fertilizer & Soil Advisory",
+                            text = AppStrings.get("soil_screen_title", userLanguageCode),
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp
                         )
                         Text(
-                            text = "NPK Dosage & Soil Diagnosis Engine",
+                            text = AppStrings.get("soil_screen_sub", userLanguageCode),
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -138,7 +138,7 @@ fun SoilScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "⚖️ Dosage Calculator",
+                                text = AppStrings.get("soil_tab_calculator", userLanguageCode),
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 13.sp,
                                 color = if (screenMode == SoilScreenMode.CALCULATOR) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
@@ -161,7 +161,7 @@ fun SoilScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "🧪 Soil Test Diagnosis",
+                                text = AppStrings.get("soil_tab_diagnosis", userLanguageCode),
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 13.sp,
                                 color = if (screenMode == SoilScreenMode.DIAGNOSIS) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
@@ -187,7 +187,7 @@ fun SoilScreen(
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             Text(
-                                text = "🌾 1. Select Crop",
+                                text = "🌾 " + AppStrings.get("soil_calc_crop_label", userLanguageCode),
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 13.sp,
                                 color = MaterialTheme.colorScheme.primary
@@ -210,7 +210,7 @@ fun SoilScreen(
                             HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
 
                             Text(
-                                text = "📐 2. Field Size (Acreage)",
+                                text = "📐 " + AppStrings.get("soil_calc_acreage_label", userLanguageCode),
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 13.sp,
                                 color = MaterialTheme.colorScheme.primary
@@ -223,7 +223,7 @@ fun SoilScreen(
                                 OutlinedTextField(
                                     value = calcAcreage,
                                     onValueChange = { viewModel.setCalcAcreage(it) },
-                                    label = { Text("Land Area") },
+                                    label = { Text(AppStrings.get("soil_calc_acreage_label", userLanguageCode)) },
                                     singleLine = true,
                                     modifier = Modifier.weight(1.2f),
                                     shape = RoundedCornerShape(12.dp)
@@ -232,6 +232,11 @@ fun SoilScreen(
                                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                                     viewModel.unitsList.forEach { unit ->
                                         val isSelected = calcUnit == unit
+                                        val localizedUnit = when(unit.lowercase()) {
+                                            "acres", "acre" -> AppStrings.get("soil_calc_unit_acres", userLanguageCode)
+                                            "hectares", "ha" -> AppStrings.get("soil_calc_unit_hectares", userLanguageCode)
+                                            else -> AppStrings.get("soil_calc_unit_guntha", userLanguageCode)
+                                        }
                                         Surface(
                                             onClick = {
                                                 haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
@@ -242,7 +247,7 @@ fun SoilScreen(
                                             border = androidx.compose.foundation.BorderStroke(1.dp, if (isSelected) Color(0xFF25A25A) else MaterialTheme.colorScheme.outline)
                                         ) {
                                             Text(
-                                                text = unit,
+                                                text = localizedUnit,
                                                 modifier = Modifier.padding(horizontal = 10.dp, vertical = 12.dp),
                                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                                                 fontSize = 12.sp,
@@ -256,7 +261,7 @@ fun SoilScreen(
                             HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
 
                             Text(
-                                text = "🌱 3. Soil Type",
+                                text = "🌱 " + AppStrings.get("soil_calc_soil_label", userLanguageCode),
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 13.sp,
                                 color = MaterialTheme.colorScheme.primary
@@ -299,7 +304,7 @@ fun SoilScreen(
                                 ) {
                                     Column {
                                         Text(
-                                            text = "REQUIRED FERTILIZER BAGS",
+                                            text = AppStrings.get("soil_calc_res_title", userLanguageCode),
                                             fontWeight = FontWeight.Bold,
                                             fontSize = 12.sp,
                                             color = MaterialTheme.colorScheme.primary
@@ -343,7 +348,7 @@ fun SoilScreen(
                                             horizontalAlignment = Alignment.CenterHorizontally,
                                             verticalArrangement = Arrangement.spacedBy(2.dp)
                                         ) {
-                                            Text("UREA", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFF60A5FA), maxLines = 1)
+                                            Text(AppStrings.get("soil_calc_urea", userLanguageCode), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFF60A5FA), maxLines = 1)
                                             Text("${fert.ureaBags45kg}", fontSize = 20.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
                                             Text("Bags (45kg)", fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
                                             Text("(${fert.ureaKg.toInt()} kg)", fontSize = 9.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
@@ -362,7 +367,7 @@ fun SoilScreen(
                                             horizontalAlignment = Alignment.CenterHorizontally,
                                             verticalArrangement = Arrangement.spacedBy(2.dp)
                                         ) {
-                                            Text("DAP", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFFFBBF24), maxLines = 1)
+                                            Text(AppStrings.get("soil_calc_dap", userLanguageCode), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFFFBBF24), maxLines = 1)
                                             Text("${fert.dapBags50kg}", fontSize = 20.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
                                             Text("Bags (50kg)", fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
                                             Text("(${fert.dapKg.toInt()} kg)", fontSize = 9.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
@@ -381,7 +386,7 @@ fun SoilScreen(
                                             horizontalAlignment = Alignment.CenterHorizontally,
                                             verticalArrangement = Arrangement.spacedBy(2.dp)
                                         ) {
-                                            Text("POTASH", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFFF472B6), maxLines = 1)
+                                            Text(AppStrings.get("soil_calc_mop", userLanguageCode), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFFF472B6), maxLines = 1)
                                             Text("${fert.mopBags50kg}", fontSize = 20.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
                                             Text("Bags (50kg)", fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
                                             Text("(${fert.mopKg.toInt()} kg)", fontSize = 9.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
@@ -393,7 +398,7 @@ fun SoilScreen(
 
                                 // Split Application Schedule
                                 Text(
-                                    text = "📅 Split Application Schedule",
+                                    text = "📅 " + AppStrings.get("soil_calc_schedule_title", userLanguageCode),
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 13.sp,
                                     color = MaterialTheme.colorScheme.primary
@@ -467,7 +472,7 @@ fun SoilScreen(
                                         )
                                     ) {
                                         Text(
-                                            text = type,
+                                            text = com.krishisevak.app.data.engine.SmartAgriToolsTranslations.getSoilTypeName(type, userLanguageCode),
                                             modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
                                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                                             color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface,

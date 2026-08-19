@@ -1,16 +1,20 @@
 package com.krishisevak.app.data.engine
 
-data class SoilAnalysisInput(
+typealias SoilAnalysisInput = SoilAdvisoryInput
+typealias SoilAnalysisResult = SoilAdvisoryResult
+
+
+data class SoilAdvisoryInput(
     val soilType: String = "Alluvial Soil",
     val ph: Float = 6.8f,
-    val nitrogenPpm: Float = 140f,
-    val phosphorusPpm: Float = 24f,
-    val potassiumPpm: Float = 180f
+    val nitrogenPpm: Float = 180f,
+    val phosphorusPpm: Float = 22f,
+    val potassiumPpm: Float = 140f
 )
 
-data class SoilAnalysisResult(
+data class SoilAdvisoryResult(
+    val healthScore: Int, // 0 to 100
     val summary: String,
-    val soilHealthIndex: Int,
     val deficiencies: List<String>,
     val fertilizerRecommendations: List<String>,
     val organicAmendments: List<String>,
@@ -39,14 +43,13 @@ data class FertilizerAcreageResult(
 
 object SoilAdvisoryEngine {
 
-    fun analyzeSoil(input: SoilAnalysisInput, langCode: String = "en"): SoilAnalysisResult {
+    fun analyzeSoil(input: SoilAdvisoryInput, langCode: String = "en"): SoilAdvisoryResult {
+        val code = langCode.lowercase()
+        var healthScore = 88
         val deficiencies = mutableListOf<String>()
         val recommendations = mutableListOf<String>()
         val organicAmendments = mutableListOf<String>()
         val precautions = mutableListOf<String>()
-
-        var healthScore = 85
-        val code = langCode.lowercase()
 
         // 1. pH Evaluation
         when {
@@ -54,19 +57,19 @@ object SoilAdvisoryEngine {
                 healthScore -= 15
                 when (code) {
                     "hi" -> {
-                        deficiencies.add("अम्लीय मिट्टी (pH ${input.ph}): उच्च अम्लता से फास्फोरस और कैल्शियम का अवशोषण रुकता है।")
-                        recommendations.add("मिट्टी की अम्लता दूर करने के लिए 250-400 किग्रा/एकड़ कृषि चूना (कैल्शियम कार्बोनेट) डालें।")
-                        organicAmendments.add("खेत में अच्छी सड़ी लकड़ी की राख और गोबर की खाद 3 टन/एकड़ की दर से मिलाएं।")
+                        deficiencies.add("अम्लीय मिट्टी (pH ${input.ph}): उच्च अम्लता फास्फोरस और कैल्शियम के अवशोषण को बाधित करती है।")
+                        recommendations.add("मिट्टी की अम्लता उदासीन करने के लिए 250-400 किग्रा/एकड़ कृषि चूना (कैल्शियम कार्बोनेट) डालें।")
+                        organicAmendments.add("सड़ी हुई गोबर की खाद (FYM) @ 3 टन/एकड़ या लकड़ी की राख का प्रयोग करें।")
                     }
                     "mr" -> {
-                        deficiencies.add("आम्लयुक्त जमीन (pH ${input.ph}): जास्त आम्लतेमुळे फॉस्फरस व कॅल्शियम शोषण कमी होते.")
-                        recommendations.add("जमिनीची आम्लता कमी करण्यासाठी २५०-४०० किलो/एकर कृषी चुना मिसळा.")
-                        organicAmendments.add("चांगले कुजलेले शेणखत किंवा लाकडाची राख ३ टन/एकर वापरा.")
+                        deficiencies.add("आम्लधर्मी जमीन (pH ${input.ph}): स्फुरद व कॅल्शियम अन्नद्रव्यांची उपलब्धता कमी होते.")
+                        recommendations.add("जमिनीचा सामू सुधारण्यासाठी २५०-४०० किलो/एकर कृषी चुना मिसळावा.")
+                        organicAmendments.add("३ टन/एकर चांगले कुजलेले शेणखत किंवा लाकडी राख वापरा.")
                     }
                     "bn" -> {
-                        deficiencies.add("অম্লীয় মাটি (pH ${input.ph}): অতিরিক্ত অম্লতার কারণে ফসফরাস ও ক্যালসিয়াম শোষণ ব্যাহত হয়।")
-                        recommendations.add("মাটির অম্লতা দূর করতে ২৫০-৪০০ কেজি/একর হারে কৃষি চুন প্রয়োগ করুন।")
-                        organicAmendments.add("৩ টন/একর হারে পচা গোবর সার বা কাঠের ছাই মাটিতে মিশিয়ে দিন।")
+                        deficiencies.add("অম্লীয় মাটি (pH ${input.ph}): ফসফরাস এবং ক্যালসিয়াম শোষণে বাধা সৃষ্টি হয়।")
+                        recommendations.add("মাটির অম্লতা কমাতে ২৫০-৪০০ কেজি/একর কৃষি চুন প্রয়োগ করুন।")
+                        organicAmendments.add("৩ টন/একর ভালো পচা গোবর সার বা কাঠের ছাই ব্যবহার করুন।")
                     }
                     "te" -> {
                         deficiencies.add("ఆమ్ల నేల (pH ${input.ph}): అధిక ఆమ్లత్వం వల్ల భాస్వరం మరియు కాల్షియం శోషణ తగ్గుతుంది.")
@@ -78,10 +81,30 @@ object SoilAdvisoryEngine {
                         recommendations.add("மண் அமிலத்தன்மையை சரிசெய்ய ஏக்கருக்கு 250-400 கிலோ விவசாய சுண்ணாம்பு இடவும்.")
                         organicAmendments.add("ஏக்கருக்கு 3 டன் நன்கு மக்கிய தொழுவுரம் இடவும்.")
                     }
-                    "kn", "ml", "gu", "pa", "or" -> {
-                        deficiencies.add("Acidic Soil (pH ${input.ph}): High acidity restricts Phosphorus and Calcium absorption.")
-                        recommendations.add("Apply Agricultural Lime @ 250-400 kg/acre to neutralize soil acidity.")
-                        organicAmendments.add("Apply Well-decomposed Farmyard Manure (FYM) @ 3 tonnes/acre.")
+                    "kn" -> {
+                        deficiencies.add("ಆಮ್ಲೀಯ ಮಣ್ಣು (pH ${input.ph}): ರಂಜಕ ಮತ್ತು ಕ್ಯಾಲ್ಸಿಯಂ ಹೀರಿಕೊಳ್ಳುವಿಕೆ ಕಡಿಮೆಯಾಗುತ್ತದೆ.")
+                        recommendations.add("ಮಣ್ಣಿನ ಆಮ್ಲೀಯತೆ ಸರಿಪಡಿಸಲು ಎಕರೆಗೆ 250-400 ಕೆಜಿ ಕೃಷಿ ಸುಣ್ಣ ಹಾಕಿ.")
+                        organicAmendments.add("ಎಕರೆಗೆ 3 ಟನ್ ಚೆನ್ನಾಗಿ ಕಳಿತ ಕೊಟ್ಟಿಗೆ ಗೊಬ್ಬರ ಬಳಸಿ.")
+                    }
+                    "gu" -> {
+                        deficiencies.add("એસિડિક જમીન (pH ${input.ph}): ફોસ્ફરસ અને કેલ્શિયમનું શોષણ ઘટે છે.")
+                        recommendations.add("જમીનનો એસિડિક ગુણ સુધારવા એકરે 250-400 કિલો કૃષિ ચૂનો ઉમેરો.")
+                        organicAmendments.add("એકરે 3 ટન સારું દેશી છાણીયું ખાતર આપો.")
+                    }
+                    "pa" -> {
+                        deficiencies.add("ਤੇਜ਼ਾਬੀ ਮਿੱਟੀ (pH ${input.ph}): ਫਾਸਫੋਰਸ ਅਤੇ ਕੈਲਸ਼ੀਅਮ ਦੀ ਪ੍ਰਾਪਤੀ ਘਟਦੀ ਹੈ।")
+                        recommendations.add("ਜ਼ਮੀਨ ਦਾ ਤੇਜ਼ਾਬੀਪਨ ਘਟਾਉਣ ਲਈ 250-400 ਕਿਲੋ/ਏਕੜ ਖੇਤੀ ਚੂਨਾ ਪਾਓ।")
+                        organicAmendments.add("3 ਟਨ/ਏਕੜ ਵਧੀਆ ਗਲੀ-ਸੜੀ ਰੂੜੀ ਖਾਦ ਪਾਓ।")
+                    }
+                    "ml" -> {
+                        deficiencies.add("അമ്ലഗുണമുള്ള മണ്ണ് (pH ${input.ph}): ഫോസ്ഫറസ്, കാൽസ്യം ആഗിരണം കുറയുന്നു.")
+                        recommendations.add("മണ്ണിലെ അമ്ലത കുറയ്ക്കാൻ ഏക്കറിന് 250-400 കിലോഗ്രാം കുമ്മായം ചേർക്കുക.")
+                        organicAmendments.add("ഏക്കറിന് 3 ടൺ ഉണങ്ങിപ്പൊടിഞ്ഞ കാലിവളം ചേർക്കുക.")
+                    }
+                    "or" -> {
+                        deficiencies.add("ଅମ୍ଳୀୟ ମାଟି (pH ${input.ph}): ଫସଫରସ ଓ କ୍ୟାଲସିୟମ ଶୋଷଣ ବାଧାପ୍ରାପ୍ତ ହୁଏ।")
+                        recommendations.add("ମାଟିର ଅମ୍ଳତା ଦୂର କରିବା ପାଇଁ ଏକର ପିଛା 250-400 କିଲୋ ଚୂନ ପ୍ରୟୋଗ କରନ୍ତୁ।")
+                        organicAmendments.add("ଏକର ପିଛା 3 ଟନ ସଢ଼ା ଗୋବର ଖତ ପ୍ରୟୋଗ କରନ୍ତୁ।")
                     }
                     else -> {
                         deficiencies.add("Acidic Soil (pH ${input.ph}): High acidity restricts Phosphorus and Calcium absorption.")
@@ -118,6 +141,31 @@ object SoilAdvisoryEngine {
                         recommendations.add("ஏக்கருக்கு 300 கிலோ ஜிப்சம் இட்டு நீர் பாய்ச்சவும்.")
                         organicAmendments.add("தக்கைப்பூண்டு அல்லது சணப்பை போன்ற பசுந்தாள் உரங்களை மண்ணில் மடக்கவும்.")
                     }
+                    "kn" -> {
+                        deficiencies.add("ಕ್ಷಾರೀಯ ಮಣ್ಣು (pH ${input.ph}): ಸತು ಮತ್ತು ಕಬ್ಬಿಣದ ಕೊರತೆ ಉಂಟಾಗುತ್ತದೆ.")
+                        recommendations.add("ಎಕರೆಗೆ 300 ಕೆಜಿ ಕೃಷಿ ಜಿಪ್ಸಮ್ ಹಾಕಿ ನೀರು ಹಾಯಿಸಿ.")
+                        organicAmendments.add("ಹಸಿರೆಲೆ ಗೊಬ್ಬರವನ್ನು (ಡೈಂಚಾ/ಸಣಬು) ಭೂಮಿಗೆ ಸೇರಿಸಿ.")
+                    }
+                    "gu" -> {
+                        deficiencies.add("ક્ષારયુક્ત જમીન (pH ${input.ph}): ઝીંક અને લોહ તત્વની ઉણપ સર્જાય છે.")
+                        recommendations.add("એકરે 300 કિલો જીપ્સમ આપીને ઊંડું પિયત આપો.")
+                        organicAmendments.add("ઇકકડ અથવા શણનું લીલું ખાતર જમીનમાં દાટો.")
+                    }
+                    "pa" -> {
+                        deficiencies.add("ਖਾਰੀ / ਕੱਲਰ ਵਾਲੀ ਜ਼ਮੀਨ (pH ${input.ph}): ਜਿੰਕ ਅਤੇ ਲੋਹੇ ਦੀ ਘਾਟ ਹੁੰਦੀ ਹੈ।")
+                        recommendations.add("300 ਕਿਲੋ/ਏਕੜ ਜਿਪਸਮ ਪਾ ਕੇ ਭਾਰੀ ਸਿੰਚਾਈ ਕਰੋ।")
+                        organicAmendments.add("ਜੰਤਰ ਜਾਂ ਸਣ ਦੀ ਹਰੀ ਖਾਦ ਖੇਤ ਵਿੱਚ ਵਾਹੋ।")
+                    }
+                    "ml" -> {
+                        deficiencies.add("ക്ഷാരഗുണമുള്ള മണ്ണ് (pH ${input.ph}): സിങ്ക്, ഇരുമ്പ് എന്നിവയുടെ കുറവ് അനുഭവപ്പെടുന്നു.")
+                        recommendations.add("ഏക്കറിന് 300 കിലോഗ്രാം ജിപ്സം ഇട്ട് നനയ്ക്കുക.")
+                        organicAmendments.add("പച്ചിലവളങ്ങൾ മണ്ണിൽ ഉഴുതുചേർക്കുക.")
+                    }
+                    "or" -> {
+                        deficiencies.add("କ୍ଷାରୀୟ ମାଟି (pH ${input.ph}): ଜିଙ୍କ ଓ ଲୌହ ଅଂଶର ଅଭାବ ଦେଖାଦିଏ।")
+                        recommendations.add("ଏକର ପିଛା 300 କିଲୋ ଜିପସମ ପ୍ରୟୋଗ କରନ୍ତୁ।")
+                        organicAmendments.add("ଧନଞ୍ଚା କିମ୍ବା ଛଣପଟ ସବୁଜ ଖତ ଜମିରେ ମିଶାନ୍ତୁ।")
+                    }
                     else -> {
                         deficiencies.add("Alkaline / Saline Soil (pH ${input.ph}): High alkalinity induces Zinc and Iron chlorosis.")
                         recommendations.add("Apply Agricultural Gypsum (Calcium Sulphate) @ 300 kg/acre followed by deep leaching irrigation.")
@@ -135,6 +183,7 @@ object SoilAdvisoryEngine {
                     "kn" -> recommendations.add("ಮಣ್ಣಿನ pH ಮಟ್ಟ ಸಮತೋಲನದಲ್ಲಿದೆ (${input.ph}). ಉತ್ತಮ ಬೆಳೆ ಇಳುವರಿಗೆ ಸೂಕ್ತ.")
                     "gu" -> recommendations.add("જમીનનો pH સંતુલિત છે (${input.ph}). પાકના સારા વિકાસ માટે ઉત્તમ.")
                     "pa" -> recommendations.add("ਮਿੱਟੀ ਦਾ pH ਬਿਲਕੁਲ ਸਹੀ ਹੈ (${input.ph})। ਫ਼ਸਲਾਂ ਲਈ ਢੁਕਵਾਂ।")
+                    "ml" -> recommendations.add("മണ്ണിന്റെ pH നില അനുയോജ്യമാണ് (${input.ph}). വിളവെടുപ്പിന് ഉത്തമം.")
                     "or" -> recommendations.add("ମାଟିର pH ସନ୍ତୁଳିତ ଅଛି (${input.ph})। ଫସଲ ଚାଷ ପାଇଁ ଉତ୍ତମ।")
                     else -> recommendations.add("Soil pH is optimal (${input.ph}). Suitable for most cereal, pulse, and horticultural crops.")
                 }
@@ -143,7 +192,7 @@ object SoilAdvisoryEngine {
 
         // 2. Nitrogen Evaluation
         when {
-            input.nitrogenPpm < 100f -> {
+            input.nitrogenPpm < 120f -> {
                 healthScore -= 20
                 when (code) {
                     "hi" -> {
@@ -171,6 +220,31 @@ object SoilAdvisoryEngine {
                         recommendations.add("யூரியாவை 3 தவணைகளாக இடவும்: 50% அடியுரமாக, 25% தூர் கட்டும் போது, 25% பூக்கும் முன்.")
                         organicAmendments.add("ஏக்கருக்கு 2 டன் மண்புழு உரம் அல்லது வேப்பம் புண்ணாக்கு இடவும்.")
                     }
+                    "kn" -> {
+                        deficiencies.add("ಸಾರಜನಕದ ಕೊರತೆ (${input.nitrogenPpm.toInt()} ppm): ಗಿಡಗಳ ಬೆಳವಣಿಗೆ ಕುಂಠಿತ ಮತ್ತು ಎಲೆಗಳು ಹಳದಿಯಾಗುವುದು.")
+                        recommendations.add("ಯೂರಿಯಾ ಗೊಬ್ಬರವನ್ನು 3 ಕಂತುಗಳಲ್ಲಿ ನೀಡಿ.")
+                        organicAmendments.add("ಎಕರೆಗೆ 2 ಟನ್ ಎರೆಹುಳು ಗೊಬ್ಬರ ಅಥವಾ ಬೇವಿನ ಹಿಂಡಿ ಬಳಸಿ.")
+                    }
+                    "gu" -> {
+                        deficiencies.add("નાઇટ્રોજનની ઉણપ (${input.nitrogenPpm.toInt()} ppm): છોડનો વિકાસ અટકવો અને પાન પીળા પડવા.")
+                        recommendations.add("યુરિયા ખાતર 3 હપ્તામાં આપો.")
+                        organicAmendments.add("એકરે 2 ટન અળસિયાનું ખાતર અથવા લીંબોળીનો ખોળ આપો.")
+                    }
+                    "pa" -> {
+                        deficiencies.add("ਨਾਈਟ੍ਰੋਜਨ ਦੀ ਭਾਰੀ ਘਾਟ (${input.nitrogenPpm.toInt()} ppm): ਬੂਟਿਆਂ ਦਾ ਵਾਧਾ ਰੁਕਣਾ।")
+                        recommendations.add("ਯੂਰੀਆ ਖਾਦ 3 ਕਿਸ਼ਤਾਂ ਵਿੱਚ ਪਾਓ।")
+                        organicAmendments.add("2 ਟਨ/ਏਕੜ ਵਰਮੀਕੰਪੋਸਟ ਜਾਂ ਨਿੰਮ ਦੀ ਖਲ ਪਾਓ।")
+                    }
+                    "ml" -> {
+                        deficiencies.add("നൈട്രജന്റെ കുറവ് (${input.nitrogenPpm.toInt()} ppm): ഇലകൾ മഞ്ഞളിക്കുകയും വളർച്ച മുരടിക്കുകയും ചെയ്യുന്നു.")
+                        recommendations.add("യൂറിയ 3 തവണകളായി നൽകുക.")
+                        organicAmendments.add("ഏക്കറിന് 2 ടൺ മണ്ണിര വളം പ്രയോഗിക്കുക.")
+                    }
+                    "or" -> {
+                        deficiencies.add("ଯବକ୍ଷାରଜାନର ଅଭାବ (${input.nitrogenPpm.toInt()} ppm): ଗଛର ବୃଦ୍ଧି ବାଧାପ୍ରାପ୍ତ ହେବା ଓ ପତ୍ର ହଳଦିଆ ପଡ଼ିବା।")
+                        recommendations.add("ୟୁରିଆ ସାରକୁ 3ଟି କିସ୍ତିରେ ପ୍ରୟୋଗ କରନ୍ତୁ।")
+                        organicAmendments.add("ଏକର ପିଛା 2 ଟନ ଜିଆ ଖତ ବ୍ୟବହାର କରନ୍ତୁ।")
+                    }
                     else -> {
                         deficiencies.add("Severe Nitrogen Deficiency (${input.nitrogenPpm.toInt()} ppm): Stunted crop growth and leaf yellowing.")
                         recommendations.add("Apply Urea (46% N) in 3 split doses: 50% basal, 25% at tillering (21 days), 25% before panicle emergence.")
@@ -178,180 +252,106 @@ object SoilAdvisoryEngine {
                     }
                 }
             }
-            input.nitrogenPpm > 240f -> {
-                when (code) {
-                    "hi" -> precautions.add("अत्यधिक नाइट्रोजन: फसल गिरने (Lodging) और कीटों का खतरा बढ़ सकता है। यूरिया की खुराक 30% घटाएं।")
-                    "mr" -> precautions.add("जास्त नायट्रोजन: पीक लोळण्याची व कीड वाढण्याची शक्यता. युरियाचे प्रमाण ३०% कमी करा.")
-                    "bn" -> precautions.add("অতিরিক্ত নাইট্রোজেন: গাছ হেলে পড়ার ঝুঁকি বাড়ে। ইউরিয়ার মাত্রা ৩০% কমান।")
-                    "te" -> precautions.add("అధిక నత్రజని: తెగుళ్ల వ్యాప్తి పెరుగుతుంది. యూరియా వాడకాన్ని 30% తగ్గించండి.")
-                    "ta" -> precautions.add("அதிக நைட்ரஜன்: பூச்சி தாக்குதல் அதிகரிக்கும். யூரியா அளவை 30% குறைக்கவும்.")
-                    else -> precautions.add("Excess Nitrogen detected: Increases vegetative softness and lodging risk. Reduce Urea dosage by 30%.")
-                }
-            }
             else -> {
                 when (code) {
-                    "hi" -> recommendations.add("नाइट्रोजन का स्तर संतुलित है (${input.nitrogenPpm.toInt()} ppm)।")
-                    "mr" -> recommendations.add("नायट्रोजनची पातळी संतुलित आहे (${input.nitrogenPpm.toInt()} ppm).")
-                    "bn" -> recommendations.add("নাইট্রোজেনের মাত্রা স্বাভাবিক (${input.nitrogenPpm.toInt()} ppm)।")
-                    "te" -> recommendations.add("నత్రజని సమతుల్యంగా ఉంది (${input.nitrogenPpm.toInt()} ppm).")
-                    "ta" -> recommendations.add("நைட்ரஜன் அளவு சீராக உள்ளது (${input.nitrogenPpm.toInt()} ppm).")
-                    else -> recommendations.add("Nitrogen level is balanced (${input.nitrogenPpm.toInt()} ppm). Follow standard maintenance dosage.")
+                    "hi" -> recommendations.add("मिट्टी में उपलब्ध नाइट्रोजन स्तर संतोषजनक है (${input.nitrogenPpm.toInt()} ppm)।")
+                    "mr" -> recommendations.add("जमिनीतील नायट्रोजनचे प्रमाण समाधानकारक आहे (${input.nitrogenPpm.toInt()} ppm).")
+                    "bn" -> recommendations.add("মাটিতে নাইট্রোজেনের মাত্রা সন্তোষজনক (${input.nitrogenPpm.toInt()} ppm)।")
+                    "te" -> recommendations.add("నేలలో నత్రజని పరిమాణం సరిపడా ఉంది (${input.nitrogenPpm.toInt()} ppm).")
+                    "ta" -> recommendations.add("மண்ணில் நைட்ரஜன் அளவு போதுமானதாக உள்ளது (${input.nitrogenPpm.toInt()} ppm).")
+                    "kn" -> recommendations.add("ಮಣ್ಣಿನಲ್ಲಿ ಸಾರಜನಕದ ಪ್ರಮಾಣ ಸಮರ್ಪಕವಾಗಿದೆ (${input.nitrogenPpm.toInt()} ppm).")
+                    "gu" -> recommendations.add("જમીનમાં નાઇટ્રોજનનું પ્રમાણ સંતોષકારક છે (${input.nitrogenPpm.toInt()} ppm).")
+                    "pa" -> recommendations.add("ਮਿੱਟੀ ਵਿੱਚ ਨਾਈਟ੍ਰੋਜਨ ਦਾ ਪੱਧਰ ਸੰਤੋਸ਼ਜਨਕ ਹੈ (${input.nitrogenPpm.toInt()} ppm)।")
+                    "ml" -> recommendations.add("മണ്ണിൽ നൈട്രജൻ ആവശ്യത്തിന് ഉണ്ട് (${input.nitrogenPpm.toInt()} ppm).")
+                    "or" -> recommendations.add("ମାଟିରେ ଯବକ୍ଷାରଜାନ ମାତ୍ରା ସନ୍ତୋଷଜନକ ଅଛି (${input.nitrogenPpm.toInt()} ppm)।")
+                    else -> recommendations.add("Available Nitrogen status is satisfactory (${input.nitrogenPpm.toInt()} ppm).")
                 }
             }
         }
 
-        // 3. Phosphorus Evaluation
-        when {
-            input.phosphorusPpm < 18f -> {
-                healthScore -= 15
-                when (code) {
-                    "hi" -> {
-                        deficiencies.add("फास्फोरस की कमी (${input.phosphorusPpm.toInt()} ppm): जड़ों का कमजोर विकास और देरी से फूल आना।")
-                        recommendations.add("बुवाई के समय डीएपी (DAP 18:46:0) 50 किग्रा/एकड़ या एसएसपी (SSP) 150 किग्रा/एकड़ जड़ के पास दें।")
-                        organicAmendments.add("फास्फोरस घोलक जीवाणु (PSB जैव उर्वरक) 2 किग्रा/एकड़ गोबर खाद में मिलाकर डालें।")
-                    }
-                    "mr" -> {
-                        deficiencies.add("फॉस्फरसची कमतरता (${input.phosphorusPpm.toInt()} ppm): मुळांची वाढ न होणे व फुले उशिरा येणे.")
-                        recommendations.add("पेरणीवेळी डीएपी (DAP) ५० किलो/एकर किंवा सिंगल सुपर फॉस्फेट (SSP) १५० किलो/एकर द्या.")
-                        organicAmendments.add("पीएसबी (PSB) जिवाणू खत २ किलो/एकर शेणखतात मिसळून वापरा.")
-                    }
-                    "bn" -> {
-                        deficiencies.add("ফসফরাসের ঘাটতি (${input.phosphorusPpm.toInt()} ppm): শিকড়ের দুর্বল বিকাশ।")
-                        recommendations.add("বপনের সময় ডিএপি (DAP) ৫০ কেজি/একর বা এসএসপি (SSP) ১৫০ কেজি/একর প্রয়োগ করুন।")
-                        organicAmendments.add("পিএসবি (PSB) জৈব সার ২ কেজি/একর গোবরের সাথে মিশিয়ে প্রয়োগ করুন।")
-                    }
-                    "te" -> {
-                        deficiencies.add("భాస్వరం లోపం (${input.phosphorusPpm.toInt()} ppm): వేరు వ్యవస్థ బలహీనపడటం.")
-                        recommendations.add("నాట్లు వేసే సమయంలో ఎకరాకు 50 కిలోల డీఏపీ (DAP) లేదా 150 కిలోల ఎస్ఎస్‌పీ వేయండి.")
-                        organicAmendments.add("పీఎస్‌బీ (PSB) బయో-ఫెర్టిలైజర్ 2 కిలోలు పశువుల ఎరువుతో కలిపి వేయండి.")
-                    }
-                    "ta" -> {
-                        deficiencies.add("பாஸ்பரஸ் பற்றாக்குறை (${input.phosphorusPpm.toInt()} ppm): வேர் வளர்ச்சி பாதிப்பு.")
-                        recommendations.add("அடியுரமாக ஏக்கருக்கு 50 கிலோ டிஏபி (DAP) அல்லது 150 கிலோ எஸ்எஸ்பி இடவும்.")
-                        organicAmendments.add("பிஎஸ்பி (PSB) உயிர் உரத்தை தொழுவுரத்துடன் கலந்து இடவும்.")
-                    }
-                    else -> {
-                        deficiencies.add("Low Phosphorus (${input.phosphorusPpm.toInt()} ppm): Poor root development and delayed flowering.")
-                        recommendations.add("Apply DAP (18:46:0) @ 50 kg/acre or SSP @ 150 kg/acre as basal dose.")
-                        organicAmendments.add("Inoculate soil with Phosphate Solubilizing Bacteria (PSB) @ 2 kg/acre.")
-                    }
-                }
-            }
-            else -> {
-                when (code) {
-                    "hi" -> recommendations.add("फास्फोरस की उपलब्धता अच्छी है (${input.phosphorusPpm.toInt()} ppm)।")
-                    "mr" -> recommendations.add("फॉस्फरसचे प्रमाण समाधानकारक आहे (${input.phosphorusPpm.toInt()} ppm).")
-                    "bn" -> recommendations.add("ফসফরাসের মাত্রা সন্তোষজনক (${input.phosphorusPpm.toInt()} ppm)।")
-                    "te" -> recommendations.add("భాస్వరం లభ్యత బాగుంది (${input.phosphorusPpm.toInt()} ppm).")
-                    "ta" -> recommendations.add("பாஸ்பரஸ் அளவு போதுமானதாக உள்ளது (${input.phosphorusPpm.toInt()} ppm).")
-                    else -> recommendations.add("Phosphorus availability is good (${input.phosphorusPpm.toInt()} ppm).")
-                }
-            }
-        }
-
-        // 4. Potassium Evaluation
-        when {
-            input.potassiumPpm < 120f -> {
-                healthScore -= 10
-                when (code) {
-                    "hi" -> {
-                        deficiencies.add("पोटाश की कमी (${input.potassiumPpm.toInt()} ppm): दाना हल्का रहना, तना कमजोर होना और पत्तियों के किनारे सूखना।")
-                        recommendations.add("खेत की तैयारी के समय म्यूटरेट ऑफ पोटाश (MOP 0:0:60) 25-35 किग्रा/एकड़ डालें।")
-                    }
-                    "mr" -> {
-                        deficiencies.add("पोटॅशची कमतरता (${input.potassiumPpm.toInt()} ppm): दाण्यांचे वजन कमी होणे व खोड कमकुवत होणे.")
-                        recommendations.add("जमीन तयार करताना एमओपी (MOP) २५-३५ किलो/एकर द्या.")
-                    }
-                    "bn" -> {
-                        deficiencies.add("পটাশিয়ামের ঘাটতি (${input.potassiumPpm.toInt()} ppm): দানা অপুষ্ট হওয়া ও কান্ড দুর্বল হওয়া।")
-                        recommendations.add("জমি তৈরির সময় এমওপি (MOP) ২৫-৩৫ কেজি/একর প্রয়োগ করুন।")
-                    }
-                    "te" -> {
-                        deficiencies.add("పొటాషియం లోపం (${input.potassiumPpm.toInt()} ppm): గింజ బరువు తగ్గడం మరియు కాండం బలహీనపడటం.")
-                        recommendations.add("దుక్కి సమయంలో ఎకరాకు 25-35 కిలోల ఎంఓపీ (MOP) వేయండి.")
-                    }
-                    "ta" -> {
-                        deficiencies.add("பொட்டாசியம் பற்றாக்குறை (${input.potassiumPpm.toInt()} ppm): மணி எடை குறைதல் மற்றும் தண்டு பலவீனமடைதல்.")
-                        recommendations.add("நிலம் தயாரிக்கும் போது ஏக்கருக்கு 25-35 கிலோ எம்ஓபி (MOP) இடவும்.")
-                    }
-                    else -> {
-                        deficiencies.add("Potassium Deficiency (${input.potassiumPpm.toInt()} ppm): Reduced grain weight and leaf edge scorching.")
-                        recommendations.add("Apply Muriate of Potash (MOP 0:0:60) @ 25-35 kg/acre during field preparation.")
-                    }
-                }
-            }
-            else -> {
-                when (code) {
-                    "hi" -> recommendations.add("पोटाश की स्थिति उत्तम है (${input.potassiumPpm.toInt()} ppm)। यह सूखे और रोगों से लड़ने में मदद करता है।")
-                    "mr" -> recommendations.add("पोटॅशचे प्रमाण उत्तम आहे (${input.potassiumPpm.toInt()} ppm). कीड व रोगप्रतिकारशक्ती वाढवते.")
-                    "bn" -> recommendations.add("পটাশিয়ামের মাত্রা চমৎকার (${input.potassiumPpm.toInt()} ppm)।")
-                    "te" -> recommendations.add("పొటాషియం లభ్యత బాగుంది (${input.potassiumPpm.toInt()} ppm).")
-                    "ta" -> recommendations.add("பொட்டாசியம் அளவு திருப்திகரமாக உள்ளது (${input.potassiumPpm.toInt()} ppm).")
-                    else -> recommendations.add("Potassium status is healthy (${input.potassiumPpm.toInt()} ppm). Enhances drought and pest resistance.")
-                }
-            }
-        }
-
-        val soilLabel = SmartAgriToolsTranslations.getSoilTypeName(input.soilType, code)
-        val finalHealth = healthScore.coerceIn(30, 100)
-
+        // Summary Line
         val summary = when (code) {
-            "hi" -> "$soilLabel (pH ${input.ph}) के लिए मृदा रिपोर्ट: समग्र स्वास्थ्य सूचकांक $finalHealth/100 है। ${deficiencies.size} कमियों की पहचान कर खाद की सिफारिश तैयार की गई है।"
-            "mr" -> "$soilLabel (pH ${input.ph}) साठी माती अहवाल: आरोग्य निर्देशांक $finalHealth/100 आहे. ${deficiencies.size} घटकांची कमतरता आढळली आहे."
-            "bn" -> "$soilLabel (pH ${input.ph}) এর মৃত্তিকা রিপোর্ট: সামগ্রিক স্বাস্থ্য সূচক $finalHealth/100। ${deficiencies.size}টি ঘাটতি শনাক্ত করা হয়েছে।"
-            "te" -> "$soilLabel (pH ${input.ph}) నేల పరీక్ష నివేదిక: సాయిల్ హెల్త్ ఇండెక్స్ $finalHealth/100. ${deficiencies.size} లోపాలు గుర్తించబడ్డాయి."
-            "ta" -> "$soilLabel (pH ${input.ph}) மண் பரிசோதனை அறிக்கை: மண் வள குறியீடு $finalHealth/100. ${deficiencies.size} சத்து பற்றாக்குறைகள் கண்டறியப்பட்டுள்ளன."
-            "kn" -> "$soilLabel (pH ${input.ph}) ಮಣ್ಣು ಪರೀಕ್ಷೆ ವರದಿ: ಮಣ್ಣಿನ ಆರೋಗ್ಯ ಸೂಚ್ಯಂಕ $finalHealth/100. ${deficiencies.size} ಕೊರತೆಗಳನ್ನು ಗುರುತಿಸಲಾಗಿದೆ."
-            "gu" -> "$soilLabel (pH ${input.ph}) જમીન રિપોર્ટ: એકંદર સ્વાસ્થ્ય ઇન્ડેક્સ $finalHealth/100 છે. ${deficiencies.size} ખામીઓ ઓળખવામાં આવી છે."
-            "pa" -> "$soilLabel (pH ${input.ph}) ਮਿੱਟੀ ਰਿਪੋਰਟ: ਸਿਹਤ ਸੂਚਕਾਂਕ $finalHealth/100 ਹੈ। ${deficiencies.size} ਕਮੀਆਂ ਦੀ ਪਛਾਣ ਕੀਤੀ ਗਈ ਹੈ।"
-            "or" -> "$soilLabel (pH ${input.ph}) ମାଟି ପରୀକ୍ଷା ରିପୋର୍ଟ: ମାଟି ସ୍ୱାସ୍ଥ୍ୟ ସୂଚକାଙ୍କ $finalHealth/100 ଅଟେ। ${deficiencies.size}ଟି ଅଭାବ ଚିହ୍ନଟ ହୋଇଛି।"
-            else -> "Soil Diagnostic Report for ${input.soilType} (pH ${input.ph}): Overall Soil Health Index is $finalHealth/100. ${deficiencies.size} deficiencies diagnosed with customized fertilizer advisory."
+            "hi" -> "मृदा स्वास्थ्य स्कोर: $healthScore/100। संतुलित उर्वरक व जैविक खाद प्रबंधन से उत्पादकता में 25% तक वृद्धि संभव है।"
+            "mr" -> "जमीन आरोग्य निर्देशांक: $healthScore/१००. योग्य खत व्यवस्थापनाने उत्पादनात २५% पर्यंत वाढ शक्य आहे."
+            "bn" -> "মাটির স্বাস্থ্য স্কোর: $healthScore/১০০। সুষম সার প্রয়োগে ফলন ২৫% পর্যন্ত বৃদ্ধি পাবে।"
+            "te" -> "భూసార స్కోరు: $healthScore/100. సరైన ఎరువుల యాజమాన్యంతో 25% అధిక దిగుబడి సాధ్యం."
+            "ta" -> "மண் வள மதிப்பீடு: $healthScore/100. சீரான உர நிர்வாகம் மூலம் 25% வரை கூடுதல் மகசூல் பெறலாம்."
+            "kn" -> "ಮಣ್ಣಿನ ಆರೋಗ್ಯ ಸ್ಕೋರ್: $healthScore/100. ಸಮತೋಲಿತ ಗೊಬ್ಬರ ಬಳಕೆಯಿಂದ 25% ಹೆಚ್ಚಿನ ಇಳುವರಿ ಪಡೆಯಬಹುದು."
+            "gu" -> "જમીન ફળદ્રુપતા સ્કોર: $healthScore/100. સંતુલિત ખાતર વ્યવસ્થાપનથી 25% વધુ ઉત્પાદન શક્ય છે."
+            "pa" -> "ਜ਼ਮੀਨ ਦੀ ਸਿਹਤ ਸਕੋਰ: $healthScore/100। ਸੰਤੁਲਿਤ ਖਾਦਾਂ ਨਾਲ 25% ਵੱਧ ਝਾੜ ਮਿਲ ਸਕਦਾ ਹੈ।"
+            "ml" -> "മണ്ണിന്റെ ആരോഗ്യ സ്കോർ: $healthScore/100. ശരിയായ വളപ്രയോഗത്തിലൂടെ 25% അധിക വിളവ് നേടാം."
+            "or" -> "ମାଟି ସ୍ୱାସ୍ଥ୍ୟ ସ୍କୋର: $healthScore/100। ସନ୍ତୁଳିତ ସାର ପ୍ରୟୋଗ ଦ୍ୱାରା 25% ଅଧିକ ଅମଳ ସମ୍ଭବ।"
+            else -> "Soil Health Index: $healthScore/100. Applying balanced N-P-K nutrition can boost crop productivity by up to 25%."
         }
 
-        if (organicAmendments.isEmpty()) {
-            organicAmendments.add(when (code) {
-                "hi" -> "प्रति वर्ष 2-3 टन सड़ी गोबर खाद (FYM) खेत में अवश्य मिलाएं।"
-                "mr" -> "दरवर्षी २-३ टन चांगले कुजलेले शेणखत जमिनीत मिसळा."
-                "bn" -> "প্রতি বছর ২-৩ টন পচা গোবর সার মাটিতে মেশান।"
-                "te" -> "ప్రతి సంవత్సరం ఎకరాకు 2-3 టన్నుల పశువుల ఎరువు వేయండి."
-                "ta" -> "வருடத்திற்கு 2-3 டன் தொழுவுரம் இடவும்."
-                else -> "Apply standard enriched Farm Yard Manure (FYM) @ 2-3 tonnes/acre annually."
-            })
-        }
-        if (precautions.isEmpty()) {
-            precautions.add(when (code) {
-                "hi" -> "यूरिया को डीएपी या बिना बुझे चूने के साथ मिलाकर न रखें ताकि गैस बनकर उड़ने से नुकसान न हो।"
-                "mr" -> "युरिया आणि डीएपी एकत्र साठवून ठेवू नका."
-                "bn" -> "ইউরিয়া ও ডিএপি সার একসাথে মিশিয়ে সংরক্ষণ করবেন না।"
-                "te" -> "యూరియా మరియు డీఏపీని కలిపి నిల్వ చేయవద్దు."
-                "ta" -> "யூரியா மற்றும் டிஏபி உரங்களை ஒன்றாக கலந்து வைக்கக் கூடாது."
-                else -> "Do not mix Urea directly with DAP during storage to prevent ammonia volatilization."
-            })
+        val precautionsList = when (code) {
+            "hi" -> listOf(
+                "खड़ी फसल में तेज धूप के समय यूरिया का बुरकाव न करें।",
+                "उर्वरक डालने के तुरंत बाद या साथ में हल्की सिंचाई अवश्य करें।",
+                "डीएपी और जिंक सल्फेट को कभी एक साथ मिलाकर न डालें।"
+            )
+            "mr" -> listOf(
+                "कडक उन्हामध्ये उभ्या पिकात युरिया टाकू नका.",
+                "खते दिल्यानंतर शेतात हलके पाणी नक्की द्यावे.",
+                "डीएपी आणि झिंक सल्फेट कधीही एकत्र मिसळून टाकू नका."
+            )
+            "bn" -> listOf(
+                "তীব্র রোদে ফসলে ইউরিয়া ছিটাবেন না।",
+                "সার প্রয়োগের সাথে সাথে হালকা সেচ দিন।",
+                "ডিএপি এবং জিংক সালফেট কখনো একসাথে মেশাবেন না।"
+            )
+            "te" -> listOf(
+                "ఎండ తీవ్రత ఎక్కువగా ఉన్నప్పుడు యూరియా చల్లవద్దు.",
+                "ఎరువులు వేసిన వెంటనే తేలికపాటి తడి ఇవ్వండి.",
+                "డీఏపీ మరియు జింక్ సల్ఫేట్‌లను కలిపి వేయవద్దు."
+            )
+            "ta" -> listOf(
+                "கடும் வெயிலில் யூரியாவை பயிரில் தூவ வேண்டாம்.",
+                "உரமிட்டவுடன் லேசான பாசனம் செய்யவும்.",
+                "டிஏபி மற்றும் ஜிங்க் சல்பேட்டை ஒன்றாக கலக்கக் கூடாது."
+            )
+            "kn" -> listOf(
+                "ಕಡು ಬಿಸಿಲಿನಲ್ಲಿ ಯೂರಿಯಾ ಗೊಬ್ಬರ ಚೆಲ್ಲಬೇಡಿ.",
+                "ಗೊಬ್ಬರ ಹಾಕಿದ ತಕ್ಷಣ ಲಘು ನೀರಾವರಿ ನೀಡಿ.",
+                "ಡಿಎಪಿ ಮತ್ತು ಜಿಂಕ್ ಸಲ್ಫೇಟ್ ಒಟ್ಟಿಗೆ ಬೆರೆಸಿ ಹಾಕಬೇಡಿ."
+            )
+            "gu" -> listOf(
+                "બપોરના તડકામાં યુરિયાનો છંટકાવ ન કરવો.",
+                "ખાતર આપ્યા પછી તરત હળવું પિયત આપવું.",
+                "ડીએપી અને ઝીંક સલ્ફેટને ક્યારેય ભેગા ન આપવા."
+            )
+            "pa" -> listOf(
+                "ਤੇਜ਼ ਧੁੱਪ ਵਿੱਚ ਯੂਰੀਆ ਦਾ ਛਿੜਕਾਅ ਨਾ ਕਰੋ।",
+                "ਖਾਦ ਪਾਉਣ ਤੋਂ ਬਾਅਦ ਹਲਕਾ ਪਾਣੀ ਜ਼ਰੂਰ ਲਗਾਓ।",
+                "ਡੀਏਪੀ ਅਤੇ ਜਿੰਕ ਸਲਫੇਟ ਨੂੰ ਕਦੇ ਵੀ ਇਕੱਠੇ ਨਾ ਮਿਲਾਓ।"
+            )
+            "ml" -> listOf(
+                "കടുത്ത വെയിലുള്ളപ്പോൾ യൂറിയ വിതറരുത്.",
+                "വളപ്രയോഗത്തിന് ശേഷം ഉടൻ നനയ്ക്കുക.",
+                "ഡിഎപിയും സിങ്ക് സൾഫേറ്റും ഒരുമിച്ച് ചേർക്കരുത്."
+            )
+            "or" -> listOf(
+                "ଖରା ବେଳେ ୟୁରିଆ ପ୍ରୟୋଗ କରନ୍ତୁ ନାହିଁ।",
+                "ସାର ପ୍ରୟୋଗ ପରେ ହାଲୁକା ଜଳସେଚନ କରନ୍ତୁ।",
+                "ଡିଏପି ଏବଂ ଜିଙ୍କ ସଲଫେଟ ଏକାଠି ମିଶାନ୍ତୁ ନାହିଁ।"
+            )
+            else -> listOf(
+                "Never broadcast Urea under intense direct sunlight to prevent volatile ammonia loss.",
+                "Provide light irrigation immediately following granular fertilizer application.",
+                "Never mix DAP and Zinc Sulphate together — it creates insoluble Zinc Phosphate precipitate."
+            )
         }
 
-        return SoilAnalysisResult(
+        return SoilAdvisoryResult(
+            healthScore = healthScore.coerceIn(20, 100),
             summary = summary,
-            soilHealthIndex = finalHealth,
-            deficiencies = deficiencies.ifEmpty {
-                listOf(when (code) {
-                    "hi" -> "कोई गंभीर पोषक तत्व की कमी नहीं पाई गई। मिट्टी उत्तम उर्वरता में है।"
-                    "mr" -> "जमिनीत कोणतीही गंभीर कमतरता नाही. जमीन सुपीक आहे."
-                    "bn" -> "কোনো গুরুতর ঘাটতি নেই। মাটি উপযুক্ত উর্বর।"
-                    "te" -> "ఎలాంటి తీవ్రమైన లోపాలు లేవు. నేల సారవంతంగా ఉంది."
-                    "ta" -> "குறிப்பிடத்தக்க சத்து பற்றாக்குறை இல்லை. மண் வளமாக உள்ளது."
-                    else -> "No critical nutrient deficiency detected. Soil is in optimal fertility condition."
-                })
-            },
+            deficiencies = deficiencies,
             fertilizerRecommendations = recommendations,
             organicAmendments = organicAmendments,
-            precautions = precautions,
-            confidence = "High"
+            precautions = precautionsList
         )
     }
 
-    /**
-     * NPK Fertilizer Dosage & Bag Calculator with Full Multi-Language Scheduling
-     */
     fun calculateFertilizerAcreage(
         cropName: String,
         acreage: Float,
@@ -362,7 +362,7 @@ object SoilAdvisoryEngine {
         val code = langCode.lowercase()
         val acres = when (unit.lowercase()) {
             "hectares", "ha" -> acreage * 2.471f
-            "bigha" -> acreage * 0.40f
+            "bigha", "guntha" -> acreage * 0.40f
             else -> acreage
         }.coerceAtLeast(0.1f)
 
@@ -382,7 +382,7 @@ object SoilAdvisoryEngine {
 
         val soilFactor = when (soilType.lowercase()) {
             "sandy soil", "sandy loam" -> 1.15f
-            "black cotton soil" -> 0.95f
+            "black cotton soil", "black soil" -> 0.95f
             "red soil" -> 1.05f
             else -> 1.0f
         }
@@ -411,6 +411,11 @@ object SoilAdvisoryEngine {
             "bn" -> "রোপণের সময় (বেসাল ডোজ): ১০০% ডিএপি (${dapKg.toInt()} কেজি / ${dapBags} বস্তা) + ১০০% পটাশ (${mopKg.toInt()} কেজি / ${mopBags} বস্তা) + ৩৩% ইউরিয়া দিন।"
             "te" -> "నాట్లు వేసే సమయంలో: 100% డీఏపీ (${dapKg.toInt()} కిలోలు / ${dapBags} బస్తాలు) + 100% పొటాష్ (${mopKg.toInt()} కిలోలు) + 33% యూరియా వేయండి."
             "ta" -> "அடியுரமாக: 100% டிஏபி (${dapKg.toInt()} கிலோ / ${dapBags} மூட்டை) + 100% பொட்டாஷ் (${mopKg.toInt()} கிலோ) + 33% யூரியா இடவும்."
+            "kn" -> "ಬಿತ್ತನೆ ಸಮಯದಲ್ಲಿ: 100% ಡಿಎಪಿ (${dapKg.toInt()} ಕೆಜಿ / ${dapBags} ಚೀಲ) + 100% ಪೊಟ್ಯಾಷ್ (${mopKg.toInt()} ಕೆಜಿ) + 33% ಯೂರಿಯಾ ಹಾಕಿ."
+            "gu" -> "વાવણી સમયે (પાયામાં): 100% ડીએપી (${dapKg.toInt()} કિલો / ${dapBags} થેલી) + 100% પોટાશ (${mopKg.toInt()} કિલો) + 33% યુરિયા આપો."
+            "pa" -> "ਬਿਜਾਈ ਵੇਲੇ: 100% ਡੀਏਪੀ (${dapKg.toInt()} ਕਿਲੋ / ${dapBags} ਥੈਲੇ) + 100% ਪੋਟਾਸ਼ (${mopKg.toInt()} ਕਿਲੋ) + 33% ਯੂਰੀਆ ਪਾਓ।"
+            "ml" -> "അടിവളമായി: 100% ഡിഎപി (${dapKg.toInt()} കിലോ / ${dapBags} ചാക്ക്) + 100% പൊട്ടാഷ് (${mopKg.toInt()} കിലോ) + 33% യൂറിയ ചേർക്കുക."
+            "or" -> "ବୁଣିବା ସମୟରେ: 100% ଡିଏପି (${dapKg.toInt()} କିଲୋ / ${dapBags} ବସ୍ତା) + 100% ପଟାସ (${mopKg.toInt()} କିଲୋ) + 33% ୟୁରିଆ ପ୍ରୟୋଗ କରନ୍ତୁ।"
             else -> "At Sowing / Field Preparation (Basal): Apply 100% of DAP (${dapKg.toInt()} kg / ${dapBags} bags) + 100% of MOP (${mopKg.toInt()} kg / ${mopBags} bags) + 33% of Urea (${(ureaKg * 0.33f).toInt()} kg)."
         }
 
@@ -420,6 +425,11 @@ object SoilAdvisoryEngine {
             "bn" -> "২০-২৫ দিন পর (প্রথম সেচ / কুশি অবস্থায়): ৩৩% ইউরিয়া (${(ureaKg * 0.33f).toInt()} কেজি) জমিতে পর্যাপ্ত আর্দ্রতায় দিন।"
             "te" -> "20-25 రోజుల తర్వాత (మొదటి తడి / పిలకల దశ): 33% యూరియా (${(ureaKg * 0.33f).toInt()} కిలోలు) వేయండి."
             "ta" -> "20-25 நாட்களில் (முதல் பாசனம் / தூர் கட்டும் பருவம்): 33% யூரியா (${(ureaKg * 0.33f).toInt()} கிலோ) இடவும்."
+            "kn" -> "20-25 ದಿನಗಳ ನಂತರ (ಮೊದಲ ನೀರಾವರಿ / ಕವಲು ಒಡೆಯುವ ಹಂತ): 33% ಯೂರಿಯಾ (${(ureaKg * 0.33f).toInt()} ಕೆಜಿ) ಹಾಕಿ."
+            "gu" -> "20-25 દિવસ પછી (પ્રથમ પિયત વખતે): 33% યુરિયા (${(ureaKg * 0.33f).toInt()} કિલો) આપો."
+            "pa" -> "20-25 ਦਿਨਾਂ ਬਾਅਦ (ਪਹਿਲੇ ਪਾਣੀ ਵੇਲੇ): 33% ਯੂਰੀਆ (${(ureaKg * 0.33f).toInt()} ਕਿਲੋ) ਪਾਓ।"
+            "ml" -> "20-25 ദിവസത്തിന് ശേഷം (ആദ്യ നന): 33% യൂറിയ (${(ureaKg * 0.33f).toInt()} കിലോ) നൽകുക."
+            "or" -> "20-25 ଦିନ ପରେ (ପ୍ରଥମ ଜଳସେଚନ ବେଳେ): 33% ୟୁରିଆ (${(ureaKg * 0.33f).toInt()} କିଲୋ) ପ୍ରୟୋଗ କରନ୍ତୁ।"
             else -> "At 20-25 Days (1st Irrigation / Tillering): Apply 33% of Urea (${(ureaKg * 0.33f).toInt()} kg / ${(ureaBags * 0.33f).toInt()} bags) with optimal soil moisture."
         }
 
@@ -429,6 +439,11 @@ object SoilAdvisoryEngine {
             "bn" -> "৪০-৪৫ দিন পর (থোড় আসার আগে): অবশিষ্ট ৩৪% ইউরিয়া (${(ureaKg * 0.34f).toInt()} কেজি) জমিতে ছিটিয়ে দিন।"
             "te" -> "40-45 రోజుల తర్వాత (పూతకు ముందు): మిగిలిన 34% యూరియా (${(ureaKg * 0.34f).toInt()} కిలోలు) వేయండి."
             "ta" -> "40-45 நாட்களில் (பூக்கும் முன்): மீதமுள்ள 34% யூரியா (${(ureaKg * 0.34f).toInt()} கிலோ) இடவும்."
+            "kn" -> "40-45 ದಿನಗಳ ನಂತರ (ಹೂಬಿಡುವ ಮುನ್ನ): ಉಳಿದ 34% ಯೂರಿಯಾ (${(ureaKg * 0.34f).toInt()} ಕೆಜಿ) ಹಾಕಿ."
+            "gu" -> "40-45 દિવસ પછી (ફૂલ આવતા પહેલા): બાકીનું 34% યુરિયા (${(ureaKg * 0.34f).toInt()} કિલો) આપો."
+            "pa" -> "40-45 ਦਿਨਾਂ ਬਾਅਦ (ਫੁੱਲ ਪੈਣ ਤੋਂ ਪਹਿਲਾਂ): ਬਾਕੀ 34% ਯੂਰੀਆ (${(ureaKg * 0.34f).toInt()} ਕਿਲੋ) ਪਾਓ।"
+            "ml" -> "40-45 ദിവസത്തിന് ശേഷം (പൂവിടുന്നതിന് മുൻപ്): ബാക്കി 34% യൂറിയ (${(ureaKg * 0.34f).toInt()} കിലോ) നൽകുക."
+            "or" -> "40-45 ଦିନ ପରେ (ଫୁଲ ଆସିବା ପୂର୍ବରୁ): ବାକି 34% ୟୁରିଆ (${(ureaKg * 0.34f).toInt()} କିଲୋ) ପ୍ରୟୋଗ କରନ୍ତୁ।"
             else -> "At 40-45 Days (Flowering / Booting stage): Broadcast remaining 34% of Urea (${(ureaKg * 0.34f).toInt()} kg) before flowering."
         }
 
@@ -438,6 +453,11 @@ object SoilAdvisoryEngine {
             "bn" -> "⚡ অনুখাদ্য পরামর্শ: $transCrop ফসলের ভালো ফলনের জন্য জিংক সালফেট ১০ কেজি/একর + সালফার ৩ কেজি/একর প্রয়োগ করুন।"
             "te" -> "⚡ సూక్ష్మ పోషకాల చిట్కా: $transCrop పంటలో అధిక దిగుబడికి జింక్ సల్ఫేట్ 10 కిలోలు/ఎకరా + సల్ఫర్ 3 కిలోలు వేయండి."
             "ta" -> "⚡ நுண்ணூட்டச்சத்து ஆலோசனை: $transCrop பயிரில் அதிக விளைச்சலுக்கு ஜிங்க் சல்பேட் 10 கிலோ/ஏக்கர் + சல்பர் 3 கிலோ இடவும்."
+            "kn" -> "⚡ ಸೂಕ್ಷ್ಮ ಪೋಷಕಾಂಶ ಸಲಹೆ: $transCrop ಬೆಳೆಯ ಉತ್ತಮ ಇಳುವರಿಗೆ ಜಿಂಕ್ ಸಲ್ಫೇಟ್ 10 ಕೆಜಿ/ಎಕರೆ + ಗಂಧಕ 3 ಕೆಜಿ/ಎಕರೆ ಬಳಸಿ."
+            "gu" -> "⚡ સૂક્ષ્મ પોષકતત્ત્વ ટીપ: $transCrop ના વધુ ઉત્પાદન માટે ઝીંક સલ્ફેટ 10 કિલો/એકર + સલ્ફર 3 કિલો/એકર આપો."
+            "pa" -> "⚡ ਸੂਖਮ ਤੱਤ ਸੁਝਾਅ: $transCrop ਦੇ ਵੱਧ ਝਾੜ ਲਈ ਜਿੰਕ ਸਲਫੇਟ 10 ਕਿਲੋ/ਏਕੜ + ਸਲਫਰ 3 ਕਿਲੋ/ਏਕੜ ਪਾਓ।"
+            "ml" -> "⚡ സൂക്ഷ്മ മൂലക നിർദ്ദേശം: $transCrop വിളവിന് സിങ്ക് സൾഫേറ്റ് 10 കി/ഏക്കർ + സൾഫർ 3 കി/ഏക്കർ പ്രയോഗിക്കുക."
+            "or" -> "⚡ ଅଣୁ ପୋଷକ ତତ୍ତ୍ୱ ପରାମର୍ଶ: $transCrop ଫସଲର ଉତ୍ତମ ଅମଳ ପାଇଁ ଜିଙ୍କ ସଲଫେଟ 10 କିଲୋ/ଏକର + ସଲଫର 3 କିଲୋ/ଏକର ପ୍ରୟୋଗ କରନ୍ତୁ।"
             else -> "⚡ Micronutrient Booster: For $cropName, add Zinc Sulphate 21% @ 10 kg/acre + Sulphur 90% @ 3 kg/acre during basal application for enhanced yield."
         }
 

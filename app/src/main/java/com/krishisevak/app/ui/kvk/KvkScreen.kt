@@ -29,6 +29,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.krishisevak.app.data.engine.HelplineContact
 import com.krishisevak.app.data.engine.KvkCenter
 import com.krishisevak.app.data.engine.KvkDirectory
+import com.krishisevak.app.utils.AppStrings
 import com.krishisevak.app.utils.TtsManager
 import com.krishisevak.app.utils.UserLocationDetails
 
@@ -93,12 +94,12 @@ fun KvkScreen(
                 title = {
                     Column {
                         Text(
-                            text = "📞 Kisan Helplines & KVKs",
+                            text = AppStrings.get("kvk_screen_title", userLanguageCode),
                             fontWeight = FontWeight.Bold,
                             fontSize = 17.sp
                         )
                         Text(
-                            text = "State Agronomist Direct Lines · ${userLocation.stateName.uppercase()}",
+                            text = "${AppStrings.get("kvk_screen_sub", userLanguageCode)} · ${userLocation.stateName.uppercase()}",
                             fontSize = 11.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -110,7 +111,7 @@ fun KvkScreen(
                     }
                 },
                 actions = {
-                    val ttsText = "Kisan Call Center toll-free helpline is 1800-180-1551. Nearest Krishi Vigyan Kendras for ${userLocation.stateName} are listed below."
+                    val ttsText = "${AppStrings.get("kvk_screen_title", userLanguageCode)}. 1800-180-1551. ${userLocation.stateName}."
                     IconButton(
                         onClick = {
                             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -161,7 +162,7 @@ fun KvkScreen(
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = "🏛️ KISAN CALL CENTER (KCC)",
+                                    text = AppStrings.get("kvk_kcc_title", userLanguageCode),
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color(0xFF86EFAC)
@@ -173,7 +174,7 @@ fun KvkScreen(
                                     color = Color.White
                                 )
                                 Text(
-                                    text = "Toll-Free · 22 Indic Languages · 6 AM - 10 PM",
+                                    text = AppStrings.get("kvk_kcc_hours", userLanguageCode),
                                     fontSize = 11.sp,
                                     color = Color(0xFFC8F5DC)
                                 )
@@ -191,7 +192,7 @@ fun KvkScreen(
                             ) {
                                 Icon(Icons.Default.Phone, contentDescription = null, tint = Color.Black, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text("CALL", fontWeight = FontWeight.Bold, color = Color.Black, fontSize = 13.sp)
+                                Text(AppStrings.get("kvk_call_btn", userLanguageCode), fontWeight = FontWeight.Bold, color = Color.Black, fontSize = 13.sp)
                             }
                         }
                     }
@@ -201,7 +202,7 @@ fun KvkScreen(
             // Quick Helplines
             item {
                 Text(
-                    text = "Emergency National Helplines",
+                    text = AppStrings.get("kvk_emergency_title", userLanguageCode),
                     fontWeight = FontWeight.Bold,
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.primary
@@ -228,13 +229,13 @@ fun KvkScreen(
                 ) {
                     Column {
                         Text(
-                            text = "📍 Nearest KVKs in ${selectedState.uppercase()}",
+                            text = AppStrings.get("kvk_nearest_title", userLanguageCode).replace("%s", selectedState.uppercase()),
                             fontWeight = FontWeight.Bold,
                             fontSize = 14.sp,
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
-                            text = "Showing ICAR agricultural science centers in your state",
+                            text = AppStrings.get("kvk_nearest_sub", userLanguageCode),
                             fontSize = 11.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -245,7 +246,7 @@ fun KvkScreen(
                         color = MaterialTheme.colorScheme.primaryContainer
                     ) {
                         Text(
-                            text = "${stateKvks.size} Centers",
+                            text = AppStrings.get("kvk_centers_count", userLanguageCode).replace("%d", stateKvks.size.toString()),
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
@@ -283,7 +284,7 @@ fun KvkScreen(
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
-                    placeholder = { Text("Filter by district name in $selectedState...", fontSize = 13.sp) },
+                    placeholder = { Text(AppStrings.get("kvk_search_hint", userLanguageCode), fontSize = 13.sp) },
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, modifier = Modifier.size(18.dp)) },
                     trailingIcon = {
                         if (searchQuery.isNotEmpty()) {
@@ -321,7 +322,8 @@ fun KvkScreen(
 
                     KvkCenterCardItem(
                         kvk = kvk,
-                        isHomeDistrict = isUserDistrict
+                        isHomeDistrict = isUserDistrict,
+                        userLanguageCode = userLanguageCode
                     ) {
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:${kvk.phone}"))
@@ -388,6 +390,7 @@ fun HelplineCardItem(
 fun KvkCenterCardItem(
     kvk: KvkCenter,
     isHomeDistrict: Boolean,
+    userLanguageCode: String,
     onCallClick: () -> Unit
 ) {
     Card(
@@ -418,7 +421,7 @@ fun KvkCenterCardItem(
                             modifier = Modifier.padding(bottom = 4.dp)
                         ) {
                             Text(
-                                text = "📍 NEAREST (YOUR DISTRICT)",
+                                text = AppStrings.get("kvk_nearest_tag", userLanguageCode),
                                 modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
@@ -434,7 +437,7 @@ fun KvkCenterCardItem(
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = "District: ${kvk.district} (${kvk.state})",
+                        text = "${AppStrings.get("kvk_district", userLanguageCode)}: ${kvk.district} (${kvk.state})",
                         fontSize = 11.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary
@@ -449,7 +452,7 @@ fun KvkCenterCardItem(
                 ) {
                     Icon(Icons.Default.Phone, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Call", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    Text(AppStrings.get("kvk_call_btn", userLanguageCode), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color.White)
                 }
             }
 

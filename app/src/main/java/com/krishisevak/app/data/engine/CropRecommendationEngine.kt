@@ -1,18 +1,17 @@
 package com.krishisevak.app.data.engine
 
 data class CropRecommendInput(
-    val season: String, // "Kharif (Monsoon)", "Rabi (Winter)", "Zaid (Summer)"
-    val waterAvailability: String, // "High (Canal / Tube well)", "Medium (Rainfed / Borewell)", "Low (Dryland / Drip)"
-    val soilType: String, // "Alluvial / Loamy", "Black Cotton", "Red / Laterite", "Clayey", "Sandy Loam"
-    val ph: Float? = null,
+    val season: String = "Kharif (Monsoon)",
+    val waterAvailability: String = "Medium (Rainfed / Borewell)",
+    val soilType: String = "Alluvial Soil",
     val previousCrop: String? = null,
-    val state: String = "All India"
+    val ph: Float? = null
 )
 
 data class RecommendedCropItem(
     val cropName: String,
     val iconEmoji: String,
-    val suitabilityScore: Int, // 0 to 100%
+    val suitabilityScore: Int, // 0 to 100
     val reason: String,
     val waterRequirement: String,
     val growingDuration: String,
@@ -27,7 +26,7 @@ object CropRecommendationEngine {
         val name: String,
         val emoji: String,
         val seasons: List<String>,
-        val waterNeed: String,
+        val waterNeed: String, // "High", "Medium", "Low"
         val soilTypes: List<String>,
         val phRange: Pair<Float, Float>,
         val growingDays: String,
@@ -43,9 +42,9 @@ object CropRecommendationEngine {
             emoji = "🌾",
             seasons = listOf("kharif", "monsoon"),
             waterNeed = "High",
-            soilTypes = listOf("clayey", "alluvial / loamy", "black cotton"),
-            phRange = 5.5f to 7.2f,
-            growingDays = "110 - 145 days",
+            soilTypes = listOf("alluvial / loamy", "clayey", "black cotton"),
+            phRange = 5.5f to 7.5f,
+            growingDays = "120 - 150 days",
             yield = "45 - 60 quintals/ha",
             defaultReason = "Ideal for kharif monsoon season with standing water and heavy clayey or loamy soils.",
             tips = listOf("Maintain 3-5 cm standing water during tillering.", "Adopt System of Rice Intensification (SRI) to save 30% water."),
@@ -269,8 +268,8 @@ object CropRecommendationEngine {
                     "Wheat" -> "শীতকালীন প্রধান ফসল। ঠান্ডা আবহাওয়া ও সুনিষ্কাশিত জমিতে ভালো ফলন।"
                     "Cotton" -> "কালো মাটিতে উচ্চ উৎপাদনশীল বাণিজ্যিক অর্থকরী ফসল।"
                     "Maize (Corn)" -> "দ্রুত বর্ধনশীল উচ্চ ফলনশীল শস্য ও গোখাদ্যের জন্য চমৎকার।"
-                    "Chickpea (Chana)" -> "কম পানির ডাল জাতীয় ফসল। মাটিতে নাইট্রোজেন যোগ করে উর্বরতা বাড়ায়।"
-                    "Mustard (Sarson)" -> "শীতের স্বল্প পানির প্রধান তৈলবীজ ফসল। ভালো বাজার মূল্য।"
+                    "Chickpea (Chana)" -> "কম জলের ডাল জাতীয় ফসল। মাটিতে নাইট্রোজেন যোগ করে উর্বরতা বাড়ায়।"
+                    "Mustard (Sarson)" -> "শীতের স্বল্প জলের প্রধান তৈলবীজ ফসল। ভালো বাজার মূল্য।"
                     "Pearl Millet (Bajra)" -> "খরা সহনশীল পুষ্টিকর দানাশস্য। শুষ্ক অঞ্চলের জন্য আদর্শ।"
                     "Soybean" -> "প্রোটিন ও তেলে সমৃদ্ধ ফসল। মাটির স্বাস্থ্য ভালো রাখে।"
                     "Watermelon / Muskmelon" -> "গ্রীষ্মকালের স্বল্পমেয়াদী অত্যন্ত লাভজনক ফল চাষ।"
@@ -303,6 +302,71 @@ object CropRecommendationEngine {
                     "Sugarcane" -> "ஆண்டு முழுவதும் பாசன வசதி உள்ள நிலங்களுக்கு ஏற்ற கரும்புப் பயிர்."
                     else -> crop.defaultReason
                 }
+                "kn" -> when (crop.name) {
+                    "Rice / Paddy" -> "ಮುಂಗಾರು ಹಂಗಾಮು ಮತ್ತು ಜೇಡಿ ಮಣ್ಣಿಗೆ ಅತ್ಯಂತ ಸೂಕ್ತವಾದ ಬೆಳೆ."
+                    "Wheat" -> "ಹಿಂಗಾರು ಹಂಗಾಮಿನ ಪ್ರಮುಖ ಆಹಾರ ಬೆಳೆ. ತಂಪಾದ ಹವಾಮಾನದಲ್ಲಿ ಉತ್ತಮ ಇಳುವರಿ."
+                    "Cotton" -> "ಕಪ್ಪು ಹತ್ತಿ ಮಣ್ಣಿನಲ್ಲಿ ಅಧಿಕ ಲಾಭ ನೀಡುವ ಪ್ರಮುಖ ವಾಣಿಜ್ಯ ಬೆಳೆ."
+                    "Maize (Corn)" -> "ವೇಗವಾಗಿ ಬೆಳೆಯುವ ಮತ್ತು ಹೆಚ್ಚು ಇಳುವರಿ ಕೊಡುವ ಧಾನ್ಯದ ಬೆಳೆ."
+                    "Chickpea (Chana)" -> "ಕಡಿಮೆ ನೀರಿನಲ್ಲಿ ಬರುವ ಕಾಳು ಬೆಳೆ. ಮಣ್ಣಿನ ಫಲವತ್ತತೆ ಹೆಚ್ಚಿಸುತ್ತದೆ."
+                    "Mustard (Sarson)" -> "ಚಳಿಗಾಲದಲ್ಲಿ ಕಡಿಮೆ ನೀರಿನಲ್ಲಿ ಬೆಳೆಯುವ ಉತ್ತಮ ಎಣ್ಣೆಕಾಳು ಬೆಳೆ."
+                    "Pearl Millet (Bajra)" -> "ಬರವನ್ನು ತಡೆದುಕೊಳ್ಳುವ ಪೌಷ್ಟಿಕ ಸಿರಿಧಾನ್ಯ ಬೆಳೆ."
+                    "Soybean" -> "ಪ್ರೋಟೀನ್ ಭರಿತ ಎಣ್ಣೆಕಾಳು ಬೆಳೆ. ಮಣ್ಣಿನ ಆರೋಗ್ಯ ಸುಧಾರಿಸುತ್ತದೆ."
+                    "Watermelon / Muskmelon" -> "ಬೇಸಿಗೆ ಹಂಗಾಮಿನಲ್ಲಿ ಕಡಿಮೆ ಅವಧಿಯಲ್ಲಿ ಅಧಿಕ ಲಾಭ ನೀಡುವ ಹಣ್ಣಿನ ಬೆಳೆ."
+                    "Sugarcane" -> "ವರ್ಷವಿಡೀ ನೀರಿನ ಸೌಲಭ್ಯವಿರುವ ಪ್ರದೇಶಗಳಿಗೆ ಅತಿ ಹೆಚ್ಚು ಲಾಭದಾಯಕ ಬೆಳೆ."
+                    else -> crop.defaultReason
+                }
+                "gu" -> when (crop.name) {
+                    "Rice / Paddy" -> "ચોમાસુ ઋતુ અને ચીકણી જમીન માટે સૌથી ઉત્તમ પાક."
+                    "Wheat" -> "શિયાળુ ઋતુનો મુખ્ય ધાન્ય પાક. ઠંડા હવામાનમાં બમ્પર ઉત્પાદન."
+                    "Cotton" -> "કાળી જમીનમાં પુષ્કળ નફો આપતો મુખ્ય રોકડિયો પાક."
+                    "Maize (Corn)" -> "ઝડપથી વધતો અને દાણા તેમજ ઘાસચારા માટે ઉપયોગી પાક."
+                    "Chickpea (Chana)" -> "ઓછા પાણીમાં થતો કઠોળ પાક. જમીનની ફળદ્રુપતા વધારે છે."
+                    "Mustard (Sarson)" -> "શિયાળામાં ઓછા પિયતમાં વધુ ઉત્પાદન આપતો તેલીબિયાં પાક."
+                    "Pearl Millet (Bajra)" -> "દુષ્કાળ સહન કરતું પૌષ્ટિક ધાન્ય. ઓછી ઉપજાઉ જમીન માટે આદર્શ."
+                    "Soybean" -> "પ્રોટીન અને તેલથી ભરપૂર પાક. જમીનમાં નાઇટ્રોજન વધારે છે."
+                    "Watermelon / Muskmelon" -> "ઉનાળુ ઋતુમાં ટૂંકા ગાળામાં મોટો નફો આપતો ફળ પાક."
+                    "Sugarcane" -> "બારેમાસ પાણીની સગવડવાળા વિસ્તારો માટે ખૂબ જ નફાકારક પાક."
+                    else -> crop.defaultReason
+                }
+                "pa" -> when (crop.name) {
+                    "Rice / Paddy" -> "ਸਾਉਣੀ ਦੇ ਮੌਸਮ ਅਤੇ ਚੀਕਣੀ ਜ਼ਮੀਨ ਲਈ ਸਭ ਤੋਂ ਵਧੀਆ ਫ਼ਸਲ।"
+                    "Wheat" -> "ਹਾੜ੍ਹੀ ਰੁੱਤ ਦੀ ਮੁੱਖ ਫ਼ਸਲ। ਠੰਢੇ ਮੌਸਮ ਵਿੱਚ ਭਰਪੂਰ ਝਾੜ ਦਿੰਦੀ ਹੈ।"
+                    "Cotton" -> "ਕਾਲੀ ਕਪਾਹ ਵਾਲੀ ਜ਼ਮੀਨ ਵਿੱਚ ਵੱਧ ਮੁਨਾਫ਼ਾ ਦੇਣ ਵਾਲੀ ਨਕਦੀ ਫ਼ਸਲ।"
+                    "Maize (Corn)" -> "ਤੇਜ਼ੀ ਨਾਲ ਵਧਣ ਵਾਲੀ ਅਨਾਜ ਅਤੇ ਚਾਰੇ ਦੀ ਬਹੁਮੁੱਲੀ ਫ਼ਸਲ।"
+                    "Chickpea (Chana)" -> "ਘੱਟ ਪਾਣੀ ਵਾਲੀ ਦਾਲ ਦੀ ਫ਼ਸਲ, ਜੋ ਜ਼ਮੀਨ ਦੀ ਉਪਜਾਊ ਸ਼ਕਤੀ ਵਧਾਉਂਦੀ ਹੈ।"
+                    "Mustard (Sarson)" -> "ਸਰਦੀਆਂ ਵਿੱਚ ਘੱਟ ਪਾਣੀ ਨਾਲ ਤਿਆਰ ਹੋਣ ਵਾਲੀ ਤੇਲ ਬੀਜ ਫ਼ਸਲ।"
+                    "Pearl Millet (Bajra)" -> "ਸੋਕਾ ਸਹਾਰਨ ਵਾਲਾ ਪੌਸ਼ਟਿਕ ਮੋਟਾ ਅਨਾਜ।"
+                    "Soybean" -> "ਪ੍ਰੋਟੀਨ ਅਤੇ ਤੇਲ ਨਾਲ ਭਰਪੂਰ ਫ਼ਸਲ। ਜ਼ਮੀਨ ਦੀ ਸਿਹਤ ਸੁਧਾਰਦੀ ਹੈ।"
+                    "Watermelon / Muskmelon" -> "ਗਰਮੀਆਂ ਵਿੱਚ ਥੋੜ੍ਹੇ ਸਮੇਂ ਵਿੱਚ ਵੱਧ ਮੁਨਾਫ਼ਾ ਦੇਣ ਵਾਲਾ ਫਲ।"
+                    "Sugarcane" -> "ਸਾਰਾ ਸਾਲ ਪਾਣੀ ਵਾਲੇ ਇਲਾਕਿਆਂ ਲਈ ਸਭ ਤੋਂ ਲਾਹੇਵੰਦ ਨਕਦੀ ਫ਼ਸਲ।"
+                    else -> crop.defaultReason
+                }
+                "ml" -> when (crop.name) {
+                    "Rice / Paddy" -> "മഴക്കാലത്തിനും കളിമൺ നിലങ്ങൾക്കും അനുയോജ്യമായ പ്രധാന വിള."
+                    "Wheat" -> "ശീതകാലത്ത് നല്ല വിളവ് തരുന്ന ധാന്യവിള."
+                    "Cotton" -> "കരിമണ്ണിൽ കൂടുതൽ ലാഭം തരുന്ന നാണ്യവിള."
+                    "Maize (Corn)" -> "വേഗത്തിൽ വളരുന്നതും ഉയർന്ന വിളവ് തരുന്നതുമായ ധാന്യം."
+                    "Chickpea (Chana)" -> "കുറഞ്ഞ വെള്ളത്തിൽ വളരുന്ന പയറുവർഗ്ഗം. മണ്ണിന്റെ ഫലഭൂയിഷ്ഠത കൂട്ടുന്നു."
+                    "Mustard (Sarson)" -> "ശൈത്യകാലത്ത് കുറഞ്ഞ നനവുള്ള എണ്ണക്കുരു വിള."
+                    "Pearl Millet (Bajra)" -> "വരൾച്ചയെ അതിജീവിക്കുന്ന പോഷകഗുണമുള്ള ചെറുധാന്യം."
+                    "Soybean" -> "പ്രോട്ടീൻ സമൃദ്ധമായ വിള. മണ്ണിന്റെ ആരോഗ്യം മെച്ചപ്പെടുത്തുന്നു."
+                    "Watermelon / Muskmelon" -> "വേനൽക്കാലത്ത് ചുരുങ്ങിയ ദിവസങ്ങൾക്കുള്ളിൽ ലാഭം തരുന്ന പഴവർഗ്ഗം."
+                    "Sugarcane" -> "വർഷം മുഴുവൻ ജലലഭ്യതയുള്ള സ്ഥലങ്ങൾക്ക് അനുയോജ്യമായ കരിമ്പ് കൃഷി."
+                    else -> crop.defaultReason
+                }
+                "or" -> when (crop.name) {
+                    "Rice / Paddy" -> "ଖରିଫ ବର୍ଷାଋତୁ ଏବଂ ପଟୁ/ମଟାଳ ମାଟି ପାଇଁ ସବୁଠାରୁ ଉପଯୁକ୍ତ ଫସଲ।"
+                    "Wheat" -> "ଶୀତଋତୁର ପ୍ରମୁଖ ଫସଲ। ଥଣ୍ଡା ପାଗରେ ଉଚ୍ଚ ଅମଳ ମିଳିଥାଏ।"
+                    "Cotton" -> "କଳା ମାଟିରେ ଅଧିକ ଲାଭ ଦେଉଥିବା ପ୍ରମୁଖ ଅର୍ଥକରୀ ଫସଲ।"
+                    "Maize (Corn)" -> "ଶୀଘ୍ର ବଢ଼ୁଥିବା ଉଚ୍ଚ ଅମଳକ୍ଷମ ଦାନାଶସ୍ୟ ଓ ଗୋଖାଦ୍ୟ ଫସଲ।"
+                    "Chickpea (Chana)" -> "କମ ପାଣି ଆବଶ୍ୟକ କରୁଥିବା ଡାଲି ଜାତୀୟ ଫସଲ। ମାଟିର ଉର୍ବରତା ବଢ଼ାଏ।"
+                    "Mustard (Sarson)" -> "ଶୀତଦିନିଆ କମ ଜଳସେଚନରେ ଅଧିକ ତୈଳବୀଜ ଅମଳ ଦେଉଥିବା ଫସଲ।"
+                    "Pearl Millet (Bajra)" -> "ଖରା ଓ ମରୁଡ଼ି ସହ୍ୟ କରିପାରୁଥିବା ପୌଷ୍ଟିକ ମିଲେଟ ଶସ୍ୟ।"
+                    "Soybean" -> "ପ୍ରୋଟିନ ଓ ତେଲରେ ଭରପୂର ଫସଲ। ମାଟିର ସ୍ୱାସ୍ଥ୍ୟ ଭଲ ରଖେ।"
+                    "Watermelon / Muskmelon" -> "ଗ୍ରୀଷ୍ମ ଋତୁରେ କମ ସମୟରେ ଅଧିକ ଲାଭ ଦେଉଥିବା ଫଳ ଫସଲ।"
+                    "Sugarcane" -> "ସାରା ବର୍ଷ ଜଳସେଚନ ଥିବା ଜମି ପାଇଁ ଅତ୍ୟନ୍ତ ଲାଭଦାୟକ ଆଖୁ ଫସଲ।"
+                    else -> crop.defaultReason
+                }
                 else -> crop.defaultReason
             }
 
@@ -317,6 +381,11 @@ object CropRecommendationEngine {
                     "bn" -> "${SmartAgriToolsTranslations.getWaterLevelName(crop.waterNeed, code)} চাহিদা"
                     "te" -> "${SmartAgriToolsTranslations.getWaterLevelName(crop.waterNeed, code)} అవసరం"
                     "ta" -> "${SmartAgriToolsTranslations.getWaterLevelName(crop.waterNeed, code)} தேவை"
+                    "kn" -> "${SmartAgriToolsTranslations.getWaterLevelName(crop.waterNeed, code)} ಅಗತ್ಯ"
+                    "gu" -> "${SmartAgriToolsTranslations.getWaterLevelName(crop.waterNeed, code)} જરૂરિયાત"
+                    "pa" -> "${SmartAgriToolsTranslations.getWaterLevelName(crop.waterNeed, code)} ਲੋੜ"
+                    "ml" -> "${SmartAgriToolsTranslations.getWaterLevelName(crop.waterNeed, code)} ആവശ്യം"
+                    "or" -> "${SmartAgriToolsTranslations.getWaterLevelName(crop.waterNeed, code)} ଆବଶ୍ୟକତା"
                     else -> "${crop.waterNeed} (${crop.waterNeed.lowercase()} water demand)"
                 },
                 growingDuration = crop.growingDays,

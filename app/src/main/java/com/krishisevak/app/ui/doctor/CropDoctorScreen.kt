@@ -121,10 +121,10 @@ fun CropDoctorScreen(
     if (showAttachmentDialog) {
         AlertDialog(
             onDismissRequest = { showAttachmentDialog = false },
-            title = { Text("Crop Diagnosis Photo", fontWeight = FontWeight.Bold) },
+            title = { Text(AppStrings.get("doctor_photo_dialog_title", userLanguageCode), fontWeight = FontWeight.Bold) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("Take or upload a clear photo of the infected crop leaf / stem:")
+                    Text(AppStrings.get("doctor_photo_dialog_desc", userLanguageCode))
                     Button(
                         onClick = {
                             showAttachmentDialog = false
@@ -136,7 +136,7 @@ fun CropDoctorScreen(
                     ) {
                         Icon(Icons.Default.PhotoCamera, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("📷 Take Photo with Camera", fontWeight = FontWeight.Bold)
+                        Text(AppStrings.get("doctor_take_photo_btn", userLanguageCode), fontWeight = FontWeight.Bold)
                     }
 
                     OutlinedButton(
@@ -149,14 +149,14 @@ fun CropDoctorScreen(
                     ) {
                         Icon(Icons.Default.PhotoLibrary, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("🖼️ Choose from Gallery", fontWeight = FontWeight.Bold)
+                        Text(AppStrings.get("doctor_choose_gallery_btn", userLanguageCode), fontWeight = FontWeight.Bold)
                     }
                 }
             },
             confirmButton = {},
             dismissButton = {
                 TextButton(onClick = { showAttachmentDialog = false }) {
-                    Text("Cancel")
+                    Text(AppStrings.get("doctor_cancel_btn", userLanguageCode))
                 }
             }
         )
@@ -205,7 +205,7 @@ fun CropDoctorScreen(
             ExtendedFloatingActionButton(
                 onClick = { showAttachmentDialog = true },
                 icon = { Icon(Icons.Default.CameraAlt, contentDescription = "Take Photo") },
-                text = { Text("Diagnose Crop") },
+                text = { Text(AppStrings.get("doctor_diagnose_crop", userLanguageCode)) },
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary
             )

@@ -326,18 +326,17 @@ class TtsManager(
             }
         }
 
-        // Prefer Indian English voice when speaking English
-        if (locale.language == "en") {
-            try {
-                val inVoice = localTts?.voices?.find {
-                    it.locale.language == "en" && it.locale.country.equals("IN", ignoreCase = true)
-                }
-                if (inVoice != null) {
-                    localTts?.voice = inVoice
-                }
-            } catch (_: Exception) {
-                // Ignore voice selection failure on older Android engines
+        // Prefer Indian voices for Indian English (en-IN), Indian Bengali (bn-IN), etc.
+        try {
+            val targetVoice = localTts?.voices?.find { v ->
+                v.locale.language.equals(locale.language, ignoreCase = true) &&
+                (v.locale.country.equals("IN", ignoreCase = true) || v.name.contains("-in-", ignoreCase = true) || v.name.contains("_in_", ignoreCase = true))
             }
+            if (targetVoice != null) {
+                localTts?.voice = targetVoice
+            }
+        } catch (_: Exception) {
+            // Ignore voice selection failure on engines without explicit voice query support
         }
 
         _currentlySpeakingId.value = id

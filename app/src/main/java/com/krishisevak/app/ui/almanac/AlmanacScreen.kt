@@ -220,7 +220,7 @@ fun AlmanacScreen(
                                         color = MaterialTheme.colorScheme.onSurface
                                     )
                                     Text(
-                                        text = "Target Crop: ${act.crop}",
+                                        text = "${AppStrings.get("almanac_target_crop", userLanguageCode)}: ${act.crop}",
                                         fontSize = 12.sp,
                                         color = MaterialTheme.colorScheme.primary,
                                         fontWeight = FontWeight.SemiBold
